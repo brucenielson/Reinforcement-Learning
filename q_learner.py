@@ -5,17 +5,13 @@ import numpy as np
 
 
 class QLearner(QLearnerContract):
-    def __init__(self) -> None:
-        self.average_over: int = 0
-        self.min_alpha: float = 0.0
-        self.min_epsilon: float = 0.0
-        self.episode: int = 0
-        raise UnusedConstructor()
-
     def __int__(self, num_states: int, num_actions: int, environment: Environment, num_episodes: int,
-                epsilon: float = 0.8, decay=0.9999, gamma: float = 0.99, lr: float = 0.001, alpha: float = 0.1):
-        super(QLearnerContract, self).__init__(num_states, num_actions, num_episodes, epsilon, decay, gamma, lr, alpha)
+                epsilon: float = 0.8, decay: float = 0.9999, gamma: float = 0.99, alpha: float = 0.1):
+        super(QLearnerContract, self).__init__(num_states, num_actions, num_episodes, epsilon, decay, gamma)
+        # Create model
         self.q_model = QTable(num_states, num_actions)
+        # Set learning rate (alpha)
+        self.alpha: float = alpha
         # Track scores, averages, and states across a session of training
         self.scores: list = []
         self.running_average: list = []

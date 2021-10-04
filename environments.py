@@ -3,12 +3,13 @@ import gym
 
 
 class OpenGymEnvironmentRequired(Exception):
-    super().__init__("Must pass a valid Open Gym environment to OpenGymEnvironment")
+    def __init__(self):
+        super().__init__("Must pass a valid Open Gym environment to OpenGymEnvironment")
 
 
 class OpenGymEnvironment(Environment):
     def __int__(self, learner: QLearnerContract, q_table: QTableContract, open_gym_env: object = None) -> None:
-        super().__init__(learner, q_table)
+        super(Environment, self).__init__(learner, q_table)
         if open_gym_env is None:
             raise OpenGymEnvironmentRequired
         self.open_gym_env: object = open_gym_env

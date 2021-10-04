@@ -1,9 +1,4 @@
 from signal import signal, SIGINT
-import numpy as np
-
-# Globals
-DEBUG = False
-abort = False
 
 
 class UnusedConstructor(Exception):
@@ -13,9 +8,8 @@ class UnusedConstructor(Exception):
 # Setup a way to exit training using CTRL-C
 # From: https://www.devdungeon.com/content/python-catch-sigint-ctrl-c
 def handler(signal_received, frame):
-    global abort
     print('CTRL-C detected. Exiting.')
-    abort = True
+    QLearnerContract.set_abort(True)
 
 
 signal(SIGINT, handler)
@@ -23,7 +17,7 @@ signal(SIGINT, handler)
 
 class QTableContract:
     # Abstract methods
-    def __init__(self):
+    def __init__(self) -> None:
         self.model: object = None
         raise UnusedConstructor
 
@@ -47,8 +41,7 @@ class QTableContract:
 
     # At a certain 'state' we took 'action' and received 'reward' and ended up in 'new_state'
     # Update the QTable to represent this
-    def update_q_table(self, state: int, action: int, reward: float, new_state: object,
-                       gamma: float, alpha: float) -> None:
+    def update_q_table(self, state: int, action: int, reward: float, new_state: object) -> None:
         pass
 
     # Keep track of every episode (state, action, reward, new_state, done)
@@ -59,15 +52,28 @@ class QTableContract:
 
 
 class QLearnerContract:
-    def __int__(self, num_states: int, num_actions: int, num_episodes: int,
+    abort: bool = False     # Abort flag to stop training
+    debug: bool = False     # Debug flag to give debug info
+
+    def __init__(self) -> None:
+        self.abort: bool = False
+        self.debug: bool = False
+        self.epsilon: float = 0.0
+        self.alpha: float = 0.0
+        raise UnusedConstructor
+
+    def __int__(self, num_states: int, num_actions: int, environment: object, num_episodes: int,
                 epsilon: float, decay, gamma: float, lr: float, alpha: float) -> None:
-        self.num_states: int = None         # Number of world states
-        self.num_actions: int = None        # Number of actions available per world state
+        self.num_states: int = 0            # Number of world states
+        self.num_actions: int = 0           # Number of actions available per world state
         self.num_episodes = num_episodes    # Number of training episodes to run
         self.epsilon: float = epsilon       # Chance of e-greedy random move
+        self.decay: float = decay           # Decay rate for epsilon and possibly alpha
         self.gamma: float = gamma           # Future discount factor
         self.lr = lr                        # Regularization parameter (lr) - used for Deep RL
         self.alpha: float = alpha           # Learning rate - not used for Deep RL
+        self.abort: bool = False            # Abort flag to stop training
+        self.debug: bool = False            # Debug flag to give debug info
 
     def e_greedy_action(self, state, e_greedy=True):
         pass
@@ -78,3 +84,39 @@ class QLearnerContract:
     def load_model(self, filename="QModel"):
         pass
 
+    def train(self, decay_alpha=True):
+        pass
+
+    @staticmethod
+    def set_debug(setting: bool) -> None:
+        QLearnerContract.debug = setting
+
+    @staticmethod
+    def get_debug() -> bool:
+        return QLearnerContract.debug
+
+    @staticmethod
+    def set_abort(setting: bool) -> None:
+        QLearnerContract.abort = setting
+
+    @staticmethod
+    def get_abort() -> bool:
+        return QLearnerContract.abort
+
+
+class Environment:
+    def __int__(self, learner: QLearnerContract, q_table: QTableContract) -> None:
+        self.learner: QLearnerContract = learner
+        self.q_table: QTableContract = q_table
+
+    def run_episode(self):
+        pass
+
+    def reset(self):
+        pass
+
+    def render(self):
+        pass
+
+    def step(self, action: int):
+        pass

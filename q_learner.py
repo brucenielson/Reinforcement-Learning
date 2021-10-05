@@ -8,7 +8,7 @@ class QLearner(IQLearnerInterface):
     def __init__(self, environment: IEnvironmentInterface, num_states: int, num_actions: int, num_episodes: int,
                  epsilon: float = 0.8, decay: float = 0.9999, gamma: float = 0.99, alpha: float = 0.1):
         super(QLearner, self).__init__(environment, num_states, num_actions, num_episodes,
-                                                 epsilon, decay, gamma)
+                                       epsilon, decay, gamma)
         # Create model
         self.q_model = QTable(num_states, num_actions)
         # Set learning rate (alpha)
@@ -18,9 +18,9 @@ class QLearner(IQLearnerInterface):
         self.running_average: list = []
         self.average_blocks: list = []
         # For tracking training values
-        self.average_over: int = 0
-        self.min_alpha: float = 0.0
-        self.min_epsilon: float = 0.0
+        self.average_over: int = 100
+        self.min_alpha: float = 0.05
+        self.min_epsilon: float = 0.001
         self.episode: int = 0
 
     def save_model(self, file_name: str = "QModel") -> None:
@@ -91,8 +91,8 @@ class QLearner(IQLearnerInterface):
             print("Score:", round(score, 2))
         return score
 
-    def train(self, decay_alpha=True, every_nth_average: int = 10, max_converge_count: int = 25) -> None:
-        best_avg_score: float = -1000
+    def train(self, decay_alpha=True, every_nth_average: int = 10, max_converge_count: int = 50) -> None:
+        best_avg_score: float = -float('inf')
         converge_count: int = 0
         for i in range(self.num_episodes):
             self.episode = i
@@ -125,9 +125,19 @@ class QLearner(IQLearnerInterface):
             # Check if we converged.
             # We define converged as 50 rounds without improvement once we reach min_epsilon
             # Alternatively, if we abort, just break the train loop and move on
-            if (converge_count >= max_converge_count and self.epsilon > self.min_epsilon) \
+            if (converge_count >= max_converge_count and self.epsilon <= self.min_epsilon) \
                     or IQLearnerInterface.get_abort():
                 # Reset abort
                 IQLearnerInterface.set_abort(False)
                 # Then break out of training loop so we can move on
                 break
+
+    def render_episode(self):
+        return self.run_episode(render=True, no_learn=True)
+
+    def get_average_score(self, iterations=100):
+        scores = []
+        for i in range(iterations):
+            score = self.run_episode(render=False, no_learn=True)
+            scores.append(score)
+        return round(float(np.mean(scores)), 2)

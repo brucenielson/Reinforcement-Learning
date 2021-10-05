@@ -3,9 +3,11 @@ from gym.envs.toy_text.taxi import TaxiEnv
 import numpy as np
 from q_learner import QLearner
 from environments import OpenGymEnvironmentInterface
+import time
 
 
 def taxi(seed=42):
+    start_time = time.time()
     env: TaxiEnv = TaxiEnv()
     environment = OpenGymEnvironmentInterface(env)
     np.random.seed(seed)
@@ -13,12 +15,33 @@ def taxi(seed=42):
     num_actions: int = env.action_space.n
     num_states: int = env.observation_space.n
 
-    q_learner: QLearner = QLearner(environment, num_states, num_actions, 2000000, epsilon=0.99, decay=0.999997,
+    q_learner: QLearner = QLearner(environment, num_states, num_actions, 1000000, epsilon=0.99, decay=0.99999,
                                    gamma=0.9, alpha=0.5)
     q_learner.train()
     print("Final Epsilon", round(q_learner.epsilon, 4))
     print("Final Alpha:", round(q_learner.alpha, 4))
+    end_time = time.time()
+    print("Total run time: ", round(end_time-start_time))
+    # for i in range(1):
+    #     q_learner.render_episode()
+    # q_learner.ShowGraphs()
+    q_learner.save_model()
+    print("Average Score:", q_learner.get_average_score(100))
+    
     return q_learner.q_model
 
 
-ql = taxi()
+def load_taxi():
+    env: TaxiEnv = TaxiEnv()
+    num_actions: int = env.action_space.n
+    num_states: int = env.observation_space.n
+    q_learner = QLearner(env, num_states, num_actions, 1000000)
+    q_learner.load_model("TaxiQModel")
+    # for i in range(4):
+    #     q_learner.RenderEpisode()
+    print("Average Score:", q_learner.get_average_score(1000))
+    return q_learner
+
+
+# ql = taxi()
+ql = load_taxi()

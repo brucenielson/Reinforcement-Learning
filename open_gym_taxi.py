@@ -37,9 +37,10 @@ def load_taxi():
     num_states: int = env.observation_space.n
     q_learner = QLearner(env, num_states, num_actions, 1000000)
     q_learner.load_model("TaxiQModel")
-    # for i in range(4):
-    #     q_learner.RenderEpisode()
-    print("Average Score:", q_learner.get_average_score(1000))
+    # How to render better in a notebook: https://casey-barr.github.io/open-ai-taxi-problem/
+    for i in range(4):
+        q_learner.render_episode()
+    print("Average Score:", q_learner.get_average_score(10000))
     return q_learner
 
 

@@ -1,4 +1,4 @@
-from q_learner_contracts import QTableContract
+from q_learner_interfaces import IQTableInterface
 import numpy as np
 
 
@@ -6,10 +6,10 @@ import numpy as np
 #     super().__init__("The QTable Class requires a learning rate (alpha)")
 
 
-class QTable(QTableContract):
-    def __int__(self, num_states: int, num_actions: int):
+class QTable(IQTableInterface):
+    def __init__(self, num_states: int, num_actions: int):
+        super(QTable, self).__init__(num_states, num_actions)
         self.model = None
-        super(QTableContract, self).__init__(num_states, num_actions)
         # Create a numpy table to be our Q Table
         self.model: np.ndarray = np.zeros((self.num_states, self.num_actions), dtype=np.single)
 
@@ -29,6 +29,6 @@ class QTable(QTableContract):
         self.model[state, action] = value
 
     def update_q_table(self, state: int, action: int, reward: float, new_state: object,
-                       gamma: float, alpha: float) -> None:
+                       gamma: float = 0.9, alpha: float = 0.1) -> None:
         self.model[state, action] += alpha * (reward + gamma * np.max(self.model[new_state])
                                               - self.model[state, action])

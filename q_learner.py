@@ -1,13 +1,14 @@
-from q_learner_contracts import QLearnerContract, UnusedConstructor, Environment
+from q_learner_interfaces import IQLearnerInterface, IEnvironmentInterface
 from q_table import QTable
 import pickle
 import numpy as np
 
 
-class QLearner(QLearnerContract):
-    def __int__(self, num_states: int, num_actions: int, environment: Environment, num_episodes: int,
-                epsilon: float = 0.8, decay: float = 0.9999, gamma: float = 0.99, alpha: float = 0.1):
-        super(QLearnerContract, self).__init__(num_states, num_actions, num_episodes, epsilon, decay, gamma)
+class QLearner(IQLearnerInterface):
+    def __init__(self, environment: IEnvironmentInterface, num_states: int, num_actions: int, num_episodes: int,
+                 epsilon: float = 0.8, decay: float = 0.9999, gamma: float = 0.99, alpha: float = 0.1):
+        super(QLearner, self).__init__(environment, num_states, num_actions, num_episodes,
+                                                 epsilon, decay, gamma)
         # Create model
         self.q_model = QTable(num_states, num_actions)
         # Set learning rate (alpha)
@@ -21,7 +22,6 @@ class QLearner(QLearnerContract):
         self.min_alpha: float = 0.0
         self.min_epsilon: float = 0.0
         self.episode: int = 0
-        self.environment: Environment = environment
 
     def save_model(self, file_name: str = "QModel") -> None:
         pickle.dump(self.q_model.get_model(), open(file_name+".pkl", "wb"))
@@ -55,6 +55,42 @@ class QLearner(QLearnerContract):
     def update_q_table(self, state: int, action: int, reward: float, new_state: int) -> None:
         self.q_model.update_q_table(state, action, reward, new_state, self.gamma, self.alpha)
 
+    def run_episode(self, render: bool = False, no_learn: bool = False):
+        state: int = self.environment.reset()
+        score: float = 0
+        done: bool = False
+        if no_learn:
+            self.epsilon = 0.0
+            self.alpha = 0.0
+
+        # Loop until episode is done
+        while not done:
+            # If we're rendering the environment, display it
+            if render:
+                self.environment.render()
+            # Pick an action
+            action: int = self.e_greedy_action(state)
+            # Take action and advance environment
+            new_state: int
+            reward: float
+            done: bool
+            info: object
+            new_state, reward, done, info = self.environment.step(action)
+            # Collect reward
+            score += reward
+            # Save history if DQN
+            # self.q_model.save_history(state, action, reward, new_state, done)
+            # If we are learning, update Q Table
+            if not no_learn:
+                self.q_model.update_q_table(state, action, reward, new_state, self.gamma, self.alpha)
+            # New state becomes current state
+            state = new_state
+
+        # If we're rendering environment live, then show score. Otherwise, just return it
+        if render:
+            print("Score:", round(score, 2))
+        return score
+
     def train(self, decay_alpha=True, every_nth_average: int = 10, max_converge_count: int = 25) -> None:
         best_avg_score: float = -1000
         converge_count: int = 0
@@ -63,7 +99,7 @@ class QLearner(QLearnerContract):
             # Reset score for this new episode
             score: float = 0
             # Run an episode
-            score += self.environment.run_episode()
+            score += self.run_episode()
             # Decay after each episode
             self.epsilon = max(self.epsilon * self.decay, self.min_epsilon)
             if decay_alpha:
@@ -90,8 +126,8 @@ class QLearner(QLearnerContract):
             # We define converged as 50 rounds without improvement once we reach min_epsilon
             # Alternatively, if we abort, just break the train loop and move on
             if (converge_count >= max_converge_count and self.epsilon > self.min_epsilon) \
-                    or QLearnerContract.get_abort():
+                    or IQLearnerInterface.get_abort():
                 # Reset abort
-                QLearnerContract.set_abort(False)
+                IQLearnerInterface.set_abort(False)
                 # Then break out of training loop so we can move on
                 break

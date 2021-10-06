@@ -119,7 +119,7 @@ class QLearner(IQLearnerInterface):
             if self.episode % every_nth_average == 0:
                 self.average_blocks.append(avg_score)
             # Check if we converged.
-            # We define converged as 50 rounds without improvement once we reach min_epsilon
+            # We define converged as max_converge_count rounds without improvement once we reach min_epsilon
             # Alternatively, if we abort, just break the train loop and move on
             if (converge_count >= max_converge_count and self.epsilon <= self.min_epsilon) \
                     or IQLearnerInterface.get_abort():

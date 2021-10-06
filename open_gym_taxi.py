@@ -24,7 +24,7 @@ def taxi(seed=42):
     #     q_learner.render_episode()
     # q_learner.ShowGraphs()
     q_learner.save_model()
-    print("Average Score:", q_learner.get_average_score(10000))
+    print("Average Score:", q_learner.get_average_score(100))
     
     return q_learner.q_model
 

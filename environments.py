@@ -1,5 +1,4 @@
-from q_learner_interfaces import IQLearnerInterface, IQTableInterface, IEnvironmentInterface
-import gym
+from q_learner_interfaces import IEnvironmentInterface
 
 
 class OpenGymEnvironmentRequired(Exception):
@@ -14,10 +13,13 @@ class OpenGymEnvironmentInterface(IEnvironmentInterface):
         self.open_gym_env: object = open_gym_env
 
     def reset(self) -> object:
+        # noinspection PyUnresolvedReferences
         return self.open_gym_env.reset()
 
     def render(self) -> None:
+        # noinspection PyUnresolvedReferences
         self.open_gym_env.render()
 
     def step(self, action: int) -> (object, float, bool, object):
+        # noinspection PyUnresolvedReferences
         return self.open_gym_env.step(action)

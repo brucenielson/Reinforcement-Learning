@@ -6,6 +6,7 @@ from signal import signal, SIGINT
 from abc import ABC, abstractmethod
 import math
 
+
 class UnusedConstructor(Exception):
     def __init__(self):
         super().__init__("This constructor should not be used. It's to make clear what variables exist to PyCharm.")
@@ -26,6 +27,7 @@ signal(SIGINT, handler)
 def calc_decay(max_ep: int, min_epsilon: float, target_percent: float = 0.8):
     target_episodes: float = float(max_ep) * target_percent
     return math.pow(min_epsilon, 1.0 / target_episodes)
+
 
 class IQTableInterface(ABC):
     def __init__(self, num_states: int, num_actions: int):

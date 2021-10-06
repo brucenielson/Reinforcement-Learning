@@ -41,7 +41,8 @@ def load_taxi():
     # How to render better in a notebook: https://casey-barr.github.io/open-ai-taxi-problem/
     # for i in range(4):
     #     q_learner.render_episode()
-    print("Average Score:", q_learner.get_average_score(100000))
+    print("Q Sparseness: ", q_learner.q_model.q_sparseness())
+    print("Average Score:", q_learner.get_average_score(10000))
     return q_learner
 
 
@@ -67,7 +68,7 @@ def taxi_more_training():
     return q_learner
 
 
-ql = taxi()
-# ql = load_taxi()
+# ql = taxi()
+ql = load_taxi()
 # ql = taxi_more_training()
 # Taxi scores: https://medium.com/@anirbans17/reinforcement-learning-for-taxi-v2-edd7c5b76869

@@ -7,6 +7,8 @@ import numpy as np
 class QLearner(IQLearnerInterface):
     def __init__(self, environment: IEnvironmentInterface, num_states: int, num_actions: int, max_episodes: int = None):
         super(QLearner, self).__init__(environment, num_states, num_actions, max_episodes)
+        # Report states and actions in env
+        print("States: ", num_states, "Actions: ", num_actions)
         # Create model
         self.q_model = QTable(num_states, num_actions)
         # Track scores, averages, and states across a session of training

@@ -5,6 +5,7 @@
 from signal import signal, SIGINT
 from abc import ABC, abstractmethod
 import math
+import numpy as np
 
 
 class UnusedConstructor(Exception):
@@ -92,12 +93,17 @@ class IQLearnerInterface(ABC):
         self.alpha: float = 0.1                                         # Learning Rate (alpha)
         # If max_episodes is set, default decay to be 80% of that
         if max_episodes is not None:
-            self.decay = calc_decay(max_episodes, self.min_epsilon, target_percent=0.8)
+            self.decay = calc_decay(max_episodes, self.min_epsilon, target_percent=0.9)
         # Flags
         self.abort: bool = False                                        # Abort flag to stop training
         self.debug: bool = False                                        # Debug flag to give debug info
+        # Stats
+        self.report_every_nth = 1                                       # Show every nth episode. Defaults to every episode.
 
-    def recalculate_decay(self, target_percent: float = 0.8):
+    def report_every_nth_episode(self, every_nth: int):
+        self.report_every_nth = every_nth
+
+    def recalculate_decay(self, target_percent: float = 0.9):
         if self.max_episodes is not None:
             self.decay = calc_decay(self.max_episodes, self.min_epsilon, target_percent=target_percent)
 
@@ -127,6 +133,7 @@ class IQLearnerInterface(ABC):
 
     def e_greedy_action(self, state, e_greedy=True):
         pass
+
 
     @abstractmethod
     def save_model(self, file_name="QModel"):

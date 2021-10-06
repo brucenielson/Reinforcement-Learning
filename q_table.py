@@ -32,3 +32,8 @@ class QTable(IQTableInterface):
                        gamma: float = 0.9, alpha: float = 0.1) -> None:
         self.model[state, action] += alpha * (reward + gamma * np.max(self.model[new_state])
                                               - self.model[state, action])
+
+    def q_sparseness(self):
+        zeros = np.sum(self.model == 0)
+        divisor = self.num_states * self.num_actions
+        return float(zeros) / float(divisor)

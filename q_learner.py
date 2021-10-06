@@ -109,8 +109,9 @@ class QLearner(IQLearnerInterface):
             else:
                 converge_count = 0
             # Show results of a this round
-            print("Episode:", self.episode, "Last High:", converge_count, "Epsilon:", round(self.epsilon, 4), "Alpha:",
-                  round(self.alpha, 4), "Score:", round(score, 2), "Avg Score:", round(avg_score, 2))
+            if self.episode % self.report_every_nth == 0:
+                print("Episode:", self.episode, "Last High:", converge_count, "Epsilon:", round(self.epsilon, 4), "Alpha:",
+                      round(self.alpha, 4), "Score:", round(score, 2), "Avg Score:", round(avg_score, 2))
             # Decay after each episode
             self.epsilon = max(self.epsilon * self.decay, self.min_epsilon)
             if decay_alpha:

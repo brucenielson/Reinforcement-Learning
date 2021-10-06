@@ -5,14 +5,10 @@ import numpy as np
 
 
 class QLearner(IQLearnerInterface):
-    def __init__(self, environment: IEnvironmentInterface, num_states: int, num_actions: int, num_episodes: int,
-                 epsilon: float = 0.8, decay: float = 0.9999, gamma: float = 0.99, alpha: float = 0.1):
-        super(QLearner, self).__init__(environment, num_states, num_actions, num_episodes,
-                                       epsilon, decay, gamma)
+    def __init__(self, environment: IEnvironmentInterface, num_states: int, num_actions: int, max_episodes: int = None):
+        super(QLearner, self).__init__(environment, num_states, num_actions, max_episodes)
         # Create model
         self.q_model = QTable(num_states, num_actions)
-        # Set learning rate (alpha)
-        self.alpha: float = alpha
         # Track scores, averages, and states across a session of training
         self.scores: list = []
         self.running_average: list = []
@@ -91,11 +87,11 @@ class QLearner(IQLearnerInterface):
             print("Score:", round(score, 2))
         return score
 
-    def train(self, decay_alpha=True, every_nth_average: int = 10, max_converge_count: int = 50) -> None:
+    def train(self, decay_alpha=True, every_nth_average: int = 100, max_converge_count: int = 50) -> None:
         best_avg_score: float = -float('inf')
         converge_count: int = 0
-        for i in range(self.num_episodes):
-            self.episode = i
+        while self.max_episodes is None or self.episode <= self.max_episodes:
+            self.episode += 1
             # Reset score for this new episode
             score: float = 0
             # Run an episode
@@ -120,7 +116,7 @@ class QLearner(IQLearnerInterface):
             print("Episode:", self.episode, "Last High:", converge_count, "Epsilon:", round(self.epsilon, 4), "Alpha:",
                   round(self.alpha, 4), "Score:", round(score, 2), "Avg Score:", round(avg_score, 2))
             # Track every Nth average score to make the final graph look more readable
-            if i % every_nth_average == 0:
+            if self.episode % every_nth_average == 0:
                 self.average_blocks.append(avg_score)
             # Check if we converged.
             # We define converged as 50 rounds without improvement once we reach min_epsilon

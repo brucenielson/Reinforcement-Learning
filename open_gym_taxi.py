@@ -1,4 +1,3 @@
-from gym.envs.toy_text import TaxiEnv
 from gym.envs.toy_text.taxi import TaxiEnv
 import numpy as np
 from q_learner import QLearner
@@ -15,8 +14,7 @@ def taxi(seed=42):
     num_actions: int = env.action_space.n
     num_states: int = env.observation_space.n
 
-    q_learner: QLearner = QLearner(environment, num_states, num_actions, 1000000, epsilon=0.99, decay=0.99999,
-                                   gamma=0.9, alpha=0.5)
+    q_learner: QLearner = QLearner(environment, num_states, num_actions, max_episodes=10000)
     q_learner.train()
     print("Final Epsilon", round(q_learner.epsilon, 4))
     print("Final Alpha:", round(q_learner.alpha, 4))
@@ -26,7 +24,7 @@ def taxi(seed=42):
     #     q_learner.render_episode()
     # q_learner.ShowGraphs()
     q_learner.save_model()
-    print("Average Score:", q_learner.get_average_score(100))
+    print("Average Score:", q_learner.get_average_score(10000))
     
     return q_learner.q_model
 
@@ -36,8 +34,7 @@ def load_taxi():
     environment: OpenGymEnvironmentInterface = OpenGymEnvironmentInterface(env)
     num_actions: int = env.action_space.n
     num_states: int = env.observation_space.n
-    q_learner: QLearner = QLearner(environment, num_states, num_actions, 1000000, epsilon=0.99, decay=0.99999,
-                                   gamma=0.9, alpha=0.5)
+    q_learner: QLearner = QLearner(environment, num_states, num_actions)
     q_learner.load_model("TaxiQModel")
     # How to render better in a notebook: https://casey-barr.github.io/open-ai-taxi-problem/
     # for i in range(4):
@@ -53,8 +50,7 @@ def taxi_more_training():
     num_actions: int = env.action_space.n
     num_states: int = env.observation_space.n
 
-    q_learner: QLearner = QLearner(environment, num_states, num_actions, 1000000, epsilon=0.99, decay=0.99999,
-                                   gamma=0.9, alpha=0.1)
+    q_learner: QLearner = QLearner(environment, num_states, num_actions, 1000000)
     q_learner.load_model("TaxiQModel")
     q_learner.train()
     print("Final Epsilon", round(q_learner.epsilon, 4))
@@ -69,7 +65,7 @@ def taxi_more_training():
     return q_learner
 
 
-# ql = taxi()
-ql = load_taxi()
+ql = taxi()
+# ql = load_taxi()
 # ql = taxi_more_training()
 # Taxi scores: https://medium.com/@anirbans17/reinforcement-learning-for-taxi-v2-edd7c5b76869

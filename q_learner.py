@@ -96,10 +96,6 @@ class QLearner(IQLearnerInterface):
             score: float = 0
             # Run an episode
             score += self.run_episode()
-            # Decay after each episode
-            self.epsilon = max(self.epsilon * self.decay, self.min_epsilon)
-            if decay_alpha:
-                self.alpha = max(self.alpha * self.decay, self.min_alpha)
             # Save off score
             self.scores.append(score)
             # Get current average score. Take the last 'average_over' amount
@@ -115,6 +111,10 @@ class QLearner(IQLearnerInterface):
             # Show results of a this round
             print("Episode:", self.episode, "Last High:", converge_count, "Epsilon:", round(self.epsilon, 4), "Alpha:",
                   round(self.alpha, 4), "Score:", round(score, 2), "Avg Score:", round(avg_score, 2))
+            # Decay after each episode
+            self.epsilon = max(self.epsilon * self.decay, self.min_epsilon)
+            if decay_alpha:
+                self.alpha = max(self.alpha * self.decay, self.min_alpha)
             # Track every Nth average score to make the final graph look more readable
             if self.episode % every_nth_average == 0:
                 self.average_blocks.append(avg_score)

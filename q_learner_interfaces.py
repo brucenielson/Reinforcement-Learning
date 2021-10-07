@@ -5,7 +5,6 @@
 from signal import signal, SIGINT
 from abc import ABC, abstractmethod
 import math
-import numpy as np
 
 
 class UnusedConstructor(Exception):
@@ -31,7 +30,7 @@ def calc_decay(max_ep: int, min_epsilon: float, target_percent: float = 0.8) -> 
 
 
 class IQTableInterface(ABC):
-    def __init__(self, num_states: int, num_actions: int):
+    def __init__(self, num_states: int, num_actions: int) -> None:
         self.num_states: int = num_states
         self.num_actions: int = num_actions
 
@@ -79,72 +78,71 @@ class IQLearnerInterface(ABC):
     debug: bool = False     # Debug flag to give debug info
 
     def __init__(self, environment: IEnvironmentInterface, num_states: int, num_actions: int, max_episodes: int = None):
-        self.num_states: int = num_states                               # Number of world states
-        self.num_actions: int = num_actions                             # Number of actions available per world state
-        self.environment: IEnvironmentInterface = environment           # Environment to do updates
-        self.max_episodes: int = max_episodes                           # Number of training episodes to run
+        self.num_states: int = num_states                       # Number of world states
+        self.num_actions: int = num_actions                     # Number of actions available per world state
+        self.environment: IEnvironmentInterface = environment   # Environment to do updates
+        self.max_episodes: int = max_episodes                   # Number of training episodes to run
         # Set min hyper parameters - don't decay below these values
         self.min_epsilon: float = 0.001
         self.min_alpha: float = 0.05
         # Defaults for hyper parameters
-        self.epsilon: float = 0.99                                      # Chance of e-greedy random move
-        self.decay: float = 0.99                                        # Decay rate for epsilon and possibly alpha
-        self.gamma: float = 0.9                                         # Future discount factor
-        self.alpha: float = 0.1                                         # Learning Rate (alpha)
+        self.epsilon: float = 0.99                              # Chance of e-greedy random move
+        self.decay: float = 0.99                                # Decay rate for epsilon and possibly alpha
+        self.gamma: float = 0.9                                 # Future discount factor
+        self.alpha: float = 0.1                                 # Learning Rate (alpha)
         # If max_episodes is set, default decay to be 80% of that
         if max_episodes is not None:
             self.decay = calc_decay(max_episodes, self.min_epsilon, target_percent=0.9)
         # Flags
-        self.abort: bool = False                                        # Abort flag to stop training
-        self.debug: bool = False                                        # Debug flag to give debug info
+        self.abort: bool = False                                # Abort flag to stop training
+        self.debug: bool = False                                # Debug flag to give debug info
         # Stats
-        self.report_every_nth = 1                                       # Show every nth episode. Defaults to every episode.
+        self.report_every_nth = 1                               # Show every nth episode. Defaults to every episode.
 
-    def report_every_nth_episode(self, every_nth: int):
+    def report_every_nth_episode(self, every_nth: int) -> None:
         self.report_every_nth = every_nth
 
-    def recalculate_decay(self, target_percent: float = 0.9):
+    def recalculate_decay(self, target_percent: float = 0.9) -> None:
         if self.max_episodes is not None:
             self.decay = calc_decay(self.max_episodes, self.min_epsilon, target_percent=target_percent)
 
-    def set_min_alpha(self, min_alpha: float):
+    def set_min_alpha(self, min_alpha: float) -> None:
         # Don't decay below this alpha
         self.min_alpha = min_alpha
 
-    def set_min_epsilon(self, min_epsilon: float):
+    def set_min_epsilon(self, min_epsilon: float) -> None:
         # Don't decay below this epsilon
         self.min_epsilon = min_epsilon
 
-    def set_gamma(self, gamma: float):
+    def set_gamma(self, gamma: float) -> None:
         # Set discount factor
         self.gamma = gamma
 
-    def set_alpha(self, alpha: float):
+    def set_alpha(self, alpha: float) -> None:
         # Set learning rate
         self.alpha = alpha
 
-    def set_decay(self, decay: float):
+    def set_decay(self, decay: float) -> None:
         # Set decay
         self.decay = decay
 
-    def set_epsilon(self, epsilon: float):
+    def set_epsilon(self, epsilon: float) -> None:
         # Set epsilon (chance of random move)
         self.epsilon = epsilon
 
-    def e_greedy_action(self, state, e_greedy=True):
-        pass
-
-
-    @abstractmethod
-    def save_model(self, file_name="QModel"):
+    def e_greedy_action(self, state: object, e_greedy=True) -> int:
         pass
 
     @abstractmethod
-    def load_model(self, filename="QModel"):
+    def save_model(self, file_name: str = "QModel") -> None:
         pass
 
     @abstractmethod
-    def train(self, decay_alpha=True):
+    def load_model(self, filename: str = "QModel") -> None:
+        pass
+
+    @abstractmethod
+    def train(self, decay_alpha: bool = True) -> None:
         pass
 
     @staticmethod

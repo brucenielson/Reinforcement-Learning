@@ -5,7 +5,8 @@ import numpy as np
 
 
 class QLearner(IQLearnerInterface):
-    def __init__(self, environment: IEnvironmentInterface, num_states: int, num_actions: int, max_episodes: int = None):
+    def __init__(self, environment: IEnvironmentInterface, num_states: int, num_actions: int, max_episodes: int = None)\
+            -> None:
         super(QLearner, self).__init__(environment, num_states, num_actions, max_episodes)
         # Report states and actions in env
         print("States: ", num_states, "Actions: ", num_actions)
@@ -112,8 +113,8 @@ class QLearner(IQLearnerInterface):
                 converge_count = 0
             # Show results of a this round
             if self.episode % self.report_every_nth == 0:
-                print("Episode:", self.episode, "Last High:", converge_count, "Epsilon:", round(self.epsilon, 4), "Alpha:",
-                      round(self.alpha, 4), "Score:", round(score, 2), "Avg Score:", round(avg_score, 2))
+                print("Episode:", self.episode, "Last High:", converge_count, "Epsilon:", round(self.epsilon, 4),
+                      "Alpha:", round(self.alpha, 4), "Score:", round(score, 2), "Avg Score:", round(avg_score, 2))
             # Decay after each episode
             self.epsilon = max(self.epsilon * self.decay, self.min_epsilon)
             if decay_alpha:
@@ -131,10 +132,10 @@ class QLearner(IQLearnerInterface):
                 # Then break out of training loop so we can move on
                 break
 
-    def render_episode(self):
+    def render_episode(self) -> float:
         return self.run_episode(render=True, no_learn=True)
 
-    def get_average_score(self, iterations=100):
+    def get_average_score(self, iterations=100) -> float:
         scores = []
         for i in range(iterations):
             score = self.run_episode(render=False, no_learn=True)

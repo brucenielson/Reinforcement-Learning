@@ -7,7 +7,7 @@ import numpy as np
 
 
 class QTable(IQTableInterface):
-    def __init__(self, num_states: int, num_actions: int):
+    def __init__(self, num_states: int, num_actions: int) -> None:
         super(QTable, self).__init__(num_states, num_actions)
         self.model = None
         # Create a numpy table to be our Q Table
@@ -33,7 +33,7 @@ class QTable(IQTableInterface):
         self.model[state, action] += alpha * (reward + gamma * np.max(self.model[new_state])
                                               - self.model[state, action])
 
-    def q_sparseness(self):
+    def q_sparseness(self) -> float:
         zeros = np.sum(self.model == 0)
         divisor = self.num_states * self.num_actions
         return float(zeros) / float(divisor)

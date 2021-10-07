@@ -1,3 +1,7 @@
+# https://cython.readthedocs.io/en/latest/src/tutorial/cython_tutorial.html
+# https://www.jetbrains.com/help/pycharm/cython.html#get-started-cython
+# How to run Cython: Tools->Run setup.py -> built_ext -> --inplace
+
 # from setuptools import setup, Extension
 #
 # module = Extension('Taxi', sources=['open_gym_taxi.py', 'q_learner.py'])

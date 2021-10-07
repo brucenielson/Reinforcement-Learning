@@ -16,8 +16,10 @@
 from distutils.core import setup
 
 import numpy
+# noinspection PyPackageRequirements
 from Cython.Build import cythonize
 
+# noinspection PyPackageRequirements
 import Cython.Compiler.Options
 Cython.Compiler.Options.annotate = True
 

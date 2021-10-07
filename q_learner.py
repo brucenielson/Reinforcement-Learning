@@ -53,13 +53,13 @@ class QLearner(IQLearnerInterface):
     def update_q_table(self, state: int, action: int, reward: float, new_state: int) -> None:
         self.q_model.update_q_table(state, action, reward, new_state, self.gamma, self.alpha)
 
-    def run_episode(self, render: bool = False, no_learn: bool = False):
+    def run_episode(self, render: bool = False, no_learn: bool = False) -> float:
         state: int = self.environment.reset()
         score: float = 0
         done: bool = False
         if no_learn:
-            self.epsilon = 0.0
-            self.alpha = 0.0
+            self.epsilon: float = 0.0
+            self.alpha: float = 0.0
 
         # Loop until episode is done
         while not done:

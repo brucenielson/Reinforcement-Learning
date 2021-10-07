@@ -14,7 +14,7 @@ def taxi(seed=42):
     num_actions: int = env.action_space.n
     num_states: int = env.observation_space.n
 
-    q_learner: QLearner = QLearner(environment, num_states, num_actions, max_episodes=10000)
+    q_learner: QLearner = QLearner(environment, num_states, num_actions, max_episodes=100000)
     q_learner.report_every_nth_episode(100)
     q_learner.train()
     print("Final Epsilon", round(q_learner.epsilon, 4))
@@ -26,7 +26,7 @@ def taxi(seed=42):
     # q_learner.ShowGraphs()
     q_learner.save_model()
     print("Q Sparseness: ", q_learner.q_model.q_sparseness())
-    print("Average Score:", q_learner.get_average_score(100))
+    print("Average Score:", q_learner.get_average_score(1000))
     
     return q_learner.q_model
 
@@ -68,7 +68,7 @@ def taxi_more_training():
     return q_learner
 
 
-# ql = taxi()
-ql = load_taxi()
+ql = taxi()
+# ql = load_taxi()
 # ql = taxi_more_training()
 # Taxi scores: https://medium.com/@anirbans17/reinforcement-learning-for-taxi-v2-edd7c5b76869

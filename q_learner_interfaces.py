@@ -25,7 +25,7 @@ signal(SIGINT, handler)
 
 
 # Function used to set decay if given max_episodes so that we get to min epsilon just before max_episodes
-def calc_decay(max_ep: int, min_epsilon: float, target_percent: float = 0.8):
+def calc_decay(max_ep: int, min_epsilon: float, target_percent: float = 0.8) -> float:
     target_episodes: float = float(max_ep) * target_percent
     return math.pow(min_epsilon, 1.0 / target_episodes)
 

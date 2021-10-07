@@ -22,5 +22,6 @@ import Cython.Compiler.Options
 Cython.Compiler.Options.annotate = True
 
 setup(
-    ext_modules=cythonize(["q_learner_interfaces.py", "q_table.py", "q_learner.py", "open_gym_taxi.py", "environments.py"], annotate=True, language_level=3), include_dirs=[numpy.get_include()]
+    ext_modules=cythonize(["q_learner_interfaces.py", "q_table.py", "q_learner.py", "open_gym_taxi.py",
+                           "environments.py"], annotate=True, language_level=3), include_dirs=[numpy.get_include()]
 )

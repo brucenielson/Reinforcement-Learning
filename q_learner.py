@@ -40,7 +40,7 @@ class QLearner(IQLearnerInterface):
     def get_q_value(self, state: int, action: int) -> float:
         return self.q_model.get_q_value(state, action)
 
-    def e_greedy_action(self, state: int, e_greedy: bool = True) -> int:
+    def get_e_greedy_action(self, state: int, e_greedy: bool = True) -> int:
         # Get a random value from 0.0 to 1.0
         rand_val: float = float(np.random.rand())
         # Grab a random action
@@ -51,8 +51,8 @@ class QLearner(IQLearnerInterface):
             action = int(np.argmax(self.q_model.get_q_state(state)))
         return action
 
-    def update_q_table(self, state: int, action: int, reward: float, new_state: int) -> None:
-        self.q_model.update_q_table(state, action, reward, new_state, self.gamma, self.alpha)
+    def update_q_table(self, state: int, action: int, reward: float, new_state: int, done: bool) -> None:
+        self.q_model.update_q_table(state, action, reward, new_state, done, self.gamma, self.alpha)
 
     def run_episode(self, render: bool = False, no_learn: bool = False) -> float:
         state: int = self.environment.reset()
@@ -68,7 +68,7 @@ class QLearner(IQLearnerInterface):
             if render:
                 self.environment.render()
             # Pick an action
-            action: int = self.e_greedy_action(state)
+            action: int = self.get_e_greedy_action(state)
             # Take action and advance environment
             new_state: int
             reward: float
@@ -81,7 +81,7 @@ class QLearner(IQLearnerInterface):
             # self.q_model.save_history(state, action, reward, new_state, done)
             # If we are learning, update Q Table
             if not no_learn:
-                self.q_model.update_q_table(state, action, reward, new_state, self.gamma, self.alpha)
+                self.q_model.update_q_table(state, action, reward, new_state, done, self.gamma, self.alpha)
             # New state becomes current state
             state = new_state
 

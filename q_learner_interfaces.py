@@ -55,7 +55,7 @@ class IQTableInterface(ABC):
     # At a certain 'state' we took 'action' and received 'reward' and ended up in 'new_state'
     # Update the QTable to represent this
     @abstractmethod
-    def update_q_table(self, state: object, action: int, reward: float, new_state: object) -> None:
+    def update_q_table(self, state: object, action: int, reward: float, new_state: object, done: bool = False) -> None:
         pass
 
 
@@ -130,7 +130,8 @@ class IQLearnerInterface(ABC):
         # Set epsilon (chance of random move)
         self.epsilon = epsilon
 
-    def e_greedy_action(self, state: object, e_greedy=True) -> int:
+    @abstractmethod
+    def get_e_greedy_action(self, state: object, e_greedy=True) -> int:
         pass
 
     @abstractmethod

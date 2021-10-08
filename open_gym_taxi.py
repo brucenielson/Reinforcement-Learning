@@ -14,8 +14,10 @@ def taxi(seed=42):
     num_actions: int = env.action_space.n
     num_states: int = env.observation_space.n
 
-    q_learner: QLearner = QLearner(environment, num_states, num_actions, max_episodes=100000)
-    q_learner.report_every_nth_episode(100)
+    q_learner: QLearner = QLearner(environment, num_states, num_actions, 10000)
+    q_learner.set_alpha(0.5)
+    q_learner.recalculate_decay()
+    q_learner.report_every_nth_episode(1)
     q_learner.train()
     print("Final Epsilon", round(q_learner.epsilon, 4))
     print("Final Alpha:", round(q_learner.alpha, 4))
@@ -26,7 +28,7 @@ def taxi(seed=42):
     # q_learner.ShowGraphs()
     q_learner.save_model()
     print("Q Sparseness: ", q_learner.q_model.q_sparseness())
-    print("Average Score:", q_learner.get_average_score(1000))
+    print("Average Score:", q_learner.get_average_score(100))
     
     return q_learner.q_model
 

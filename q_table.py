@@ -28,7 +28,7 @@ class QTable(IQTableInterface):
     def set_q_value(self, state: int, action: int, value: float) -> None:
         self.model[state, action] = value
 
-    def update_q_table(self, state: int, action: int, reward: float, new_state: object,
+    def update_q_table(self, state: int, action: int, reward: float, new_state: object, done: bool = False,
                        gamma: float = 0.9, alpha: float = 0.1) -> None:
         self.model[state, action] += alpha * (reward + gamma * np.max(self.model[new_state])
                                               - self.model[state, action])

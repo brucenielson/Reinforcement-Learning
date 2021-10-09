@@ -41,7 +41,7 @@ class DQNModel(IQModelInterface):
         pass
 
     def update_q_model(self, state: int, action: int, reward: float, new_state: object, done: bool = False,
-                       gamma: float = 0.9, alpha: float = 0.1) -> None:
+                       gamma: float = 0.9) -> None:
         # Preform Replay
         row_count = self.batch_size
         if len(self.history) < row_count:

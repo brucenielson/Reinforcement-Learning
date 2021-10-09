@@ -13,7 +13,7 @@ class DQNLearner(IQLearnerInterface):
 
     def update_model(self, state: int, action: int, reward: float, new_state: int, done: bool = False) -> None:
         self.q_model.save_history(state, action, reward, new_state, done)
-        self.q_model.update_q_model(state, action, reward, new_state, done, self.gamma, self.alpha)
+        self.q_model.update_q_model(state, action, reward, new_state, done, self.gamma)
 
     def print_progress(self, converge_count: int, score: float, avg_score: float):
         print("Episode:", self.episode, "Last High:", converge_count, "Epsilon:", round(self.epsilon, 4),

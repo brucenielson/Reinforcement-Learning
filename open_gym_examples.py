@@ -45,7 +45,7 @@ def taxi(seed=42):
 
     q_learner: QLearner = QLearner(environment, num_states, num_actions, 10000)
     q_learner.set_alpha(0.5)
-    q_learner.report_every_nth_episode(1)
+    q_learner.report_every_nth_episode(100)
     q_learner.train()
     print("Final Epsilon", round(q_learner.epsilon, 4))
     print("Final Alpha:", round(q_learner.alpha, 4))

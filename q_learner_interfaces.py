@@ -119,8 +119,9 @@ class IQLearnerInterface(ABC):
         self.scores: list = []
         self.running_average: list = []
         self.average_blocks: list = []
-        # For tracking training values
-        self.average_over: int = 100
+        # For tracking training values progress and determining best model
+        # Default to 100 or to 1/10th of max episodes, whichever is smaller. But don't go below 1.
+        self.average_over: int = max(min(100, max_episodes/10), 1)
 
     # Set this to 1 to show feedback on every training episode. Set higher than 1 to show fewer. e.g. 100 = only report
     # every 100th episode, etc.
@@ -211,18 +212,27 @@ class IQLearnerInterface(ABC):
         return score
 
     def train(self, decay_alpha=True, every_nth_average: int = 100, max_converge_count: int = 50) -> None:
+        score: float = 0
+        avg_score: float = 0.0
+        printed_episode: bool = False
+        best_model: IQModelInterface or None = None
         best_avg_score: float = -float('inf')
         converge_count: int = 0
-        while self.max_episodes is None or self.episode <= self.max_episodes:
+        # Check if we converged.
+        # We define converged as max_converge_count rounds without improvement once we reach min_epsilon
+        while (self.max_episodes is None or self.episode <= self.max_episodes) and \
+                (converge_count < max_converge_count or self.epsilon > self.min_epsilon):
+            # Reset score for this episode and reset if we printed an update for this episode
+            score = 0
+            printed_episode = False
             self.episode += 1
             # Reset score for this new episode
-            score: float = 0
             # Run an episode
             score += self.run_episode()
             # Save off score
             self.scores.append(score)
             # Get current average score. Take the last 'average_over' amount
-            avg_score: float = float(np.mean(self.scores[-self.average_over:]))
+            avg_score = float(np.mean(self.scores[-self.average_over:]))
             # Track averages
             self.running_average.append(avg_score)
             # Convergence criteria
@@ -231,26 +241,32 @@ class IQLearnerInterface(ABC):
                 converge_count += 1
             else:
                 converge_count = 0
+                best_model = self.q_model
             # Show results of a this round
             if self.episode % self.report_every_nth == 0:
                 self.print_progress(converge_count, score, avg_score)
+                printed_episode = True
             # Decay after each episode
             self.epsilon = max(self.epsilon * self.decay, self.min_epsilon)
+            # TODO: I'm not sure this is the right way to handle alpha decay - maybe I should call am abstract function
             if decay_alpha and hasattr(self, 'alpha') and hasattr(self, 'min_alpha'):
                 # noinspection PyAttributeOutsideInit
                 self.alpha = max(self.alpha * self.decay, self.min_alpha)
             # Track every Nth average score to make the final graph look more readable
             if self.episode % every_nth_average == 0:
                 self.average_blocks.append(avg_score)
-            # Check if we converged.
-            # We define converged as max_converge_count rounds without improvement once we reach min_epsilon
-            # Alternatively, if we abort, just break the train loop and move on
-            if (converge_count >= max_converge_count and self.epsilon <= self.min_epsilon) \
-                    or IQLearnerInterface.get_abort():
+            # If we abort, just break the train loop and move on
+            if IQLearnerInterface.get_abort():
                 # Reset abort
                 IQLearnerInterface.set_abort(False)
                 # Then break out of training loop so we can move on
                 break
+
+        # Print final episode if not already printed
+        if not printed_episode:
+            self.print_progress(converge_count, score, avg_score)
+        # Set model to be the best one we found so far (based on avg_score)
+        self.q_model = best_model
 
     def render_episode(self) -> float:
         return self.run_episode(render=True, no_learn=True)

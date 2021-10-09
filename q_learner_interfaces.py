@@ -101,12 +101,10 @@ class IQLearnerInterface(ABC):
         self.max_episodes: int = max_episodes                   # Number of training episodes to run
         # Set min hyper parameters - don't decay below these values
         self.min_epsilon: float = 0.001
-        self.min_alpha: float = 0.05
         # Defaults for hyper parameters
         self.epsilon: float = 0.99                              # Chance of e-greedy random move
         self.decay: float = 0.99                                # Decay rate for epsilon and possibly alpha
         self.gamma: float = 0.9                                 # Future discount factor
-        self.alpha: float = 0.1                                 # Learning Rate (alpha)
         # If max_episodes is set, default decay to be 80% of that
         if max_episodes is not None:
             self.decay = calc_decay(max_episodes, self.min_epsilon, target_percent=0.9)
@@ -136,11 +134,6 @@ class IQLearnerInterface(ABC):
         if self.max_episodes is not None:
             self.decay = calc_decay(self.max_episodes, self.min_epsilon, target_percent=target_percent)
 
-    # Set the minimum learning rate (alpha) to not decay below
-    def set_min_alpha(self, min_alpha: float) -> None:
-        # Don't decay below this alpha
-        self.min_alpha = min_alpha
-
     # Set the minimum epsilon (chance of random move) to not decay below
     def set_min_epsilon(self, min_epsilon: float, recalculate_decay: bool = True) -> None:
         # Don't decay below this epsilon
@@ -152,11 +145,6 @@ class IQLearnerInterface(ABC):
     def set_gamma(self, gamma: float) -> None:
         # Set discount factor
         self.gamma = gamma
-
-    # Set learning rate (alpha)
-    def set_alpha(self, alpha: float) -> None:
-        # Set learning rate
-        self.alpha = alpha
 
     # Manually set what decay rate you want instead of letting the learner calculate it off of max_episodes
     def set_decay(self, decay: float) -> None:
@@ -196,10 +184,6 @@ class IQLearnerInterface(ABC):
         state: int = self.environment.reset()
         score: float = 0
         done: bool = False
-        if no_learn:
-            self.epsilon: float = 0.0
-            self.alpha: float = 0.0
-
         # Loop until episode is done
         while not done:
             # If we're rendering the environment, display it
@@ -249,11 +233,11 @@ class IQLearnerInterface(ABC):
                 converge_count = 0
             # Show results of a this round
             if self.episode % self.report_every_nth == 0:
-                print("Episode:", self.episode, "Last High:", converge_count, "Epsilon:", round(self.epsilon, 4),
-                      "Alpha:", round(self.alpha, 4), "Score:", round(score, 2), "Avg Score:", round(avg_score, 2))
+                self.print_progress(converge_count, score, avg_score)
             # Decay after each episode
             self.epsilon = max(self.epsilon * self.decay, self.min_epsilon)
-            if decay_alpha:
+            if decay_alpha and hasattr(self, 'alpha') and hasattr(self, 'min_alpha'):
+                # noinspection PyAttributeOutsideInit
                 self.alpha = max(self.alpha * self.decay, self.min_alpha)
             # Track every Nth average score to make the final graph look more readable
             if self.episode % every_nth_average == 0:
@@ -280,6 +264,13 @@ class IQLearnerInterface(ABC):
             score = self.run_episode(render=False, no_learn=True)
             scores.append(score)
         return round(float(np.mean(scores)), 2)
+
+    # For this model, what do you want to print out for each progress update?
+    # Parameters are converge_count (how long since we saw an improvement), score for current episode
+    # and avg_score as determined by every_nth_average parameter passed to train method
+    @abstractmethod
+    def print_progress(self, converge_count: int, score: float, avg_score: float):
+        pass
 
     # Passing an update tuple to the model to update the model
     @abstractmethod

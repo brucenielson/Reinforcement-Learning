@@ -1,6 +1,5 @@
 from q_learner_interfaces import IQLearnerInterface, IEnvironmentInterface
 from q_table import QModel
-import pickle
 import numpy as np
 
 
@@ -21,12 +20,6 @@ class QLearner(IQLearnerInterface):
         self.min_alpha: float = 0.05
         self.min_epsilon: float = 0.001
         self.episode: int = 0
-
-    def save_model(self, file_name: str = "QModel") -> None:
-        pickle.dump(self.q_model.get_model(), open(file_name+".pkl", "wb"))
-
-    def load_model(self, file_name: str = "QModel") -> None:
-        self.q_model.set_model(pickle.load(open(file_name+".pkl", "rb")))
 
     def set_average_over(self, value: float) -> None:
         self.average_over = value

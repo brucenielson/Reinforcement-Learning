@@ -1,5 +1,6 @@
 from q_learner_interfaces import IQModelInterface
 import numpy as np
+import pickle
 
 
 # class AlphaRequiredException(Exception):
@@ -21,13 +22,19 @@ class QModel(IQModelInterface):
     def get_state(self, state: int) -> np.ndarray:
         return self.model[state]
 
-    def set_q_value(self, state: int, action: int, value: float) -> None:
+    def set_value(self, state: int, action: int, value: float) -> None:
         self.model[state, action] = value
 
     def update_q_model(self, state: int, action: int, reward: float, new_state: object, done: bool = False,
                        gamma: float = 0.9, alpha: float = 0.1) -> None:
         self.model[state, action] += alpha * (reward + gamma * np.max(self.model[new_state])
                                               - self.model[state, action])
+
+    def save_model(self, file_name: str = "QModel") -> None:
+        pickle.dump(self.get_model(), open(file_name+".pkl", "wb"))
+
+    def load_model(self, file_name: str = "QModel") -> None:
+        self.set_model(pickle.load(open(file_name+".pkl", "rb")))
 
     def q_sparseness(self) -> float:
         zeros = np.sum(self.model == 0)

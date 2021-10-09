@@ -70,6 +70,16 @@ class IQModelInterface(ABC):
     def update_q_model(self, state: object, action: int, reward: float, new_state: object, done: bool = False) -> None:
         pass
 
+    # Save the model to a file
+    @abstractmethod
+    def save_model(self, file_name: str = "QModel") -> None:
+        pass
+
+    # Load the model from a file
+    @abstractmethod
+    def load_model(self, file_name: str = "QModel") -> None:
+        pass
+
 
 class IEnvironmentInterface(ABC):
     @abstractmethod
@@ -172,19 +182,17 @@ class IQLearnerInterface(ABC):
             action = int(np.argmax(self.get_model().get_state(state)))
         return action
 
+    # Save the model to a file
+    def save_model(self, file_name: str = "QModel") -> None:
+        self.get_model().save_model(file_name)
+
+    # Load the model from a file
+    def load_model(self, file_name: str = "QModel") -> None:
+        self.get_model().load_model(file_name)
+
     # Passing an update tuple to the model to update the model
     @abstractmethod
     def update_model(self, state: int, action: int, reward: float, new_state: int, done: bool = False) -> None:
-        pass
-
-    # Save the model to a file
-    @abstractmethod
-    def save_model(self, file_name: str = "QModel") -> None:
-        pass
-
-    # Load the model from a file
-    @abstractmethod
-    def load_model(self, file_name: str = "QModel") -> None:
         pass
 
     # Train the model

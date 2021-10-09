@@ -108,6 +108,8 @@ class IQLearnerInterface(ABC):
         # If max_episodes is set, default decay to be 80% of that
         if max_episodes is not None:
             self.decay = calc_decay(max_episodes, self.min_epsilon, target_percent=0.9)
+            if IQLearnerInterface.debug:
+                print("Setting decay to: ", self.decay)
         # Flags
         self.abort: bool = False                                # Abort flag to stop training
         self.debug: bool = False                                # Debug flag to give debug info
@@ -121,7 +123,7 @@ class IQLearnerInterface(ABC):
         self.average_blocks: list = []
         # For tracking training values progress and determining best model
         # Default to 100 or to 1/10th of max episodes, whichever is smaller. But don't go below 1.
-        self.average_over: int = max(min(100, max_episodes/10), 1)
+        self.average_over: int = max(min(100, max_episodes//10), 1)
 
     # Set this to 1 to show feedback on every training episode. Set higher than 1 to show fewer. e.g. 100 = only report
     # every 100th episode, etc.
@@ -134,6 +136,8 @@ class IQLearnerInterface(ABC):
     def recalculate_decay(self, target_percent: float = 0.9) -> None:
         if self.max_episodes is not None:
             self.decay = calc_decay(self.max_episodes, self.min_epsilon, target_percent=target_percent)
+            if IQLearnerInterface.debug:
+                print("Setting decay to: ", self.decay)
 
     # Set the minimum epsilon (chance of random move) to not decay below
     def set_min_epsilon(self, min_epsilon: float, recalculate_decay: bool = True) -> None:

@@ -43,6 +43,7 @@ def taxi(seed=42):
     num_actions: int = env.action_space.n
     num_states: int = env.observation_space.n
 
+    QLearner.set_debug(True)
     q_learner: QLearner = QLearner(environment, num_states, num_actions, 10000)
     q_learner.set_alpha(0.5)
     q_learner.report_every_nth_episode(100)

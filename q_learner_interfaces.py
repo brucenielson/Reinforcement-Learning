@@ -276,6 +276,9 @@ class IQLearnerInterface(ABC):
     def render_episode(self) -> float:
         return self.run_episode(render=True, no_learn=True)
 
+    def set_average_over(self, value: float) -> None:
+        self.average_over = value
+
     def get_average_score(self, iterations=100) -> float:
         scores = []
         for i in range(iterations):
@@ -285,7 +288,7 @@ class IQLearnerInterface(ABC):
 
     # Passing an update tuple to the model to update the model
     @abstractmethod
-    def update_model(self, state: int, action: int, reward: float, new_state: int, done: bool = False) -> None:
+    def update_model(self, state: object, action: int, reward: float, new_state: object, done: bool = False) -> None:
         pass
 
     # Set class debug flag

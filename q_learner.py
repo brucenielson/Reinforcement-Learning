@@ -1,6 +1,5 @@
 from q_learner_interfaces import IQLearnerInterface, IEnvironmentInterface
 from q_table import QModel
-import numpy as np
 
 
 class QLearner(IQLearnerInterface):
@@ -11,9 +10,6 @@ class QLearner(IQLearnerInterface):
         print("States: ", num_states, "Actions: ", num_actions)
         # Create model
         self.q_model = QModel(num_states, num_actions)
-
-    def set_average_over(self, value: float) -> None:
-        self.average_over = value
 
     def update_model(self, state: int, action: int, reward: float, new_state: int, done: bool = False) -> None:
         self.q_model.save_history(state, action, reward, new_state, done)

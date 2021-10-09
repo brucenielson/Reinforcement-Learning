@@ -12,6 +12,8 @@ class QTable(IQTableInterface):
         self.model = None
         # Create a numpy table to be our Q Table
         self.model: np.ndarray = np.zeros((self.num_states, self.num_actions), dtype=np.single)
+        # No need to store history for a Q Table
+        self.ignore_history: bool = True
 
     def get_model(self) -> np.ndarray:
         return self.model

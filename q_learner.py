@@ -51,7 +51,9 @@ class QLearner(IQLearnerInterface):
             action = int(np.argmax(self.q_model.get_q_state(state)))
         return action
 
-    def update_q_table(self, state: int, action: int, reward: float, new_state: int, done: bool) -> None:
+    def update_model(self, state: int, action: int, reward: float, new_state: int, done: bool = False) -> None:
+        # Save history if DQN
+        self.q_model.save_history(state, action, reward, new_state, done)
         self.q_model.update_q_table(state, action, reward, new_state, done, self.gamma, self.alpha)
 
     def run_episode(self, render: bool = False, no_learn: bool = False) -> float:
@@ -77,11 +79,9 @@ class QLearner(IQLearnerInterface):
             new_state, reward, done, info = self.environment.step(action)
             # Collect reward
             score += reward
-            # Save history if DQN
-            # self.q_model.save_history(state, action, reward, new_state, done)
             # If we are learning, update Q Table
             if not no_learn:
-                self.q_model.update_q_table(state, action, reward, new_state, done, self.gamma, self.alpha)
+                self.update_model(state, action, reward, new_state, done)
             # New state becomes current state
             state = new_state
 

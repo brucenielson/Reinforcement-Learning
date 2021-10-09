@@ -33,6 +33,18 @@ class IQTableInterface(ABC):
     def __init__(self, num_states: int, num_actions: int) -> None:
         self.num_states: int = num_states
         self.num_actions: int = num_actions
+        self.history: list = []
+        self.ignore_history: bool = False
+
+    # For Deep Reinforcement Learning we need a history of all (state, action, reward, new_state, done) tuples to
+    # train with. For a Q-table model we can just ignore this by setting the ignore_history flag instance variable.
+    def save_history(self, state: int, action: int, reward: float, new_state: int, done: bool, max_history: int = None):
+        if not self.ignore_history:
+            self.history.append((state, action, reward, new_state, done))
+            # If history is very large, we can drop off some of the earlier ones
+            if max_history is not None:
+                if len(self.history) > max_history:
+                    self.history = self.history[1:]
 
     @abstractmethod
     def get_model(self) -> object:
@@ -131,6 +143,10 @@ class IQLearnerInterface(ABC):
         self.epsilon = epsilon
 
     @abstractmethod
+    def update_model(self, state: int, action: int, reward: float, new_state: int, done: bool = False) -> None:
+        pass
+
+    @abstractmethod
     def get_e_greedy_action(self, state: object, e_greedy=True) -> int:
         pass
 
@@ -144,6 +160,10 @@ class IQLearnerInterface(ABC):
 
     @abstractmethod
     def train(self, decay_alpha: bool = True) -> None:
+        pass
+
+    @staticmethod
+    def run_episode(self, render: bool = False, no_learn: bool = False) -> float:
         pass
 
     @staticmethod

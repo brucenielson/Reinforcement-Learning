@@ -4,7 +4,7 @@
 
 # from setuptools import setup, Extension
 #
-# module = Extension('Taxi', sources=['open_gym_taxi.py', 'q_learner.py'])
+# module = Extension('Taxi', sources=['open_gym_examples.py', 'q_learner.py'])
 #
 # setup(
 #     name='cythonTest',
@@ -24,6 +24,7 @@ import Cython.Compiler.Options
 Cython.Compiler.Options.annotate = True
 
 setup(
-    ext_modules=cythonize(["q_learner_interfaces.py", "q_table.py", "q_learner.py", "open_gym_taxi.py",
-                           "environments.py"], annotate=True, language_level=3), include_dirs=[numpy.get_include()]
+    ext_modules=cythonize(["q_learner_interfaces.py", "q_table.py", "q_learner.py", "open_gym_examples.py",
+                           "environments.py", "dqn_leaner", "dqn_model"],
+                          annotate=True, language_level=3), include_dirs=[numpy.get_include()]
 )

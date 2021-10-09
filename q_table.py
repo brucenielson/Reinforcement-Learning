@@ -10,12 +10,12 @@ import pickle
 class QModel(IQModelInterface):
     def __init__(self, num_states: int, num_actions: int) -> None:
         super(QModel, self).__init__(num_states, num_actions)
-        self.model = None
         # Create a numpy table to be our Q Table
         self.model: np.ndarray = np.zeros((self.num_states, self.num_actions), dtype=np.single)
         # No need to store history for a Q Table
         self.ignore_history: bool = True
 
+    # Given a state and action, return the current Q value for that state / action combo
     def get_value(self, state: int, action: int) -> float:
         return float(self.model[state, action])
 

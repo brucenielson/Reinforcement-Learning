@@ -1,8 +1,38 @@
 from gym.envs.toy_text.taxi import TaxiEnv
+import gym
 import numpy as np
 from q_learner import QLearner
+from dqn_learner import DQNLearner
 from environments import OpenGymEnvironmentInterface
 import time
+import random
+
+
+def lunar_lander(seed=42):
+    start_time = time.time()
+
+    environment = gym.make('LunarLander-v2')
+    np.random.seed(seed)
+    environment.seed(seed)
+    random.seed(seed)
+    num_actions = environment.action_space.n
+    # How to get number of states for reinforcement learning
+    num_states = environment.observation_space.shape[0]
+    lr = 0.001
+    dqn_learner = DQNLearner(environment, num_states, num_actions, max_episodes=1000, lr=lr)
+    dqn_learner.set_alpha(1.0)
+    dqn_learner.set_gamma(0.99)
+    dqn_learner.train()
+    print("Final Epsilon", round(dqn_learner.epsilon, 3))
+    print("Final Alpha:", round(dqn_learner.alpha, 3))
+    end_time = time.time()
+    print("Total run time: ", round(end_time-start_time))
+    for i in range(4):
+        dqn_learner.render_episode()
+    # dqn.ShowGraphs()
+    # dqn.SaveQ()
+    print("Average Score:", dqn_learner.get_average_score(100))
+    return dqn_learner.q_model
 
 
 def taxi(seed=42):
@@ -68,7 +98,8 @@ def taxi_more_training():
     return q_learner
 
 
-ql = taxi()
+ql = lunar_lander()
+# ql = taxi()
 # ql = load_taxi()
 # ql = taxi_more_training()
 # Taxi scores: https://medium.com/@anirbans17/reinforcement-learning-for-taxi-v2-edd7c5b76869

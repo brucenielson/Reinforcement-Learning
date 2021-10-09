@@ -59,11 +59,6 @@ class IQModelInterface(ABC):
     def get_state(self, state: object) -> np.ndarray:
         pass
 
-    # Given a state and action, return the current Q value for that state / action combo
-    @abstractmethod
-    def get_value(self, state: object, action: int) -> object:
-        pass
-
     # At a certain 'state' we took 'action' and received 'reward' and ended up in 'new_state'
     # Update the QTable to represent this
     @abstractmethod

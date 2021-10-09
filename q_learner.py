@@ -1,5 +1,5 @@
 from q_learner_interfaces import IQLearnerInterface, IEnvironmentInterface
-from q_table import QTable
+from q_table import QModel
 import pickle
 import numpy as np
 
@@ -11,7 +11,7 @@ class QLearner(IQLearnerInterface):
         # Report states and actions in env
         print("States: ", num_states, "Actions: ", num_actions)
         # Create model
-        self.q_model = QTable(num_states, num_actions)
+        self.q_model = QModel(num_states, num_actions)
         # Track scores, averages, and states across a session of training
         self.scores: list = []
         self.running_average: list = []
@@ -54,7 +54,7 @@ class QLearner(IQLearnerInterface):
     def update_model(self, state: int, action: int, reward: float, new_state: int, done: bool = False) -> None:
         # Save history if DQN
         self.q_model.save_history(state, action, reward, new_state, done)
-        self.q_model.update_q_table(state, action, reward, new_state, done, self.gamma, self.alpha)
+        self.q_model.update_q_model(state, action, reward, new_state, done, self.gamma, self.alpha)
 
     def run_episode(self, render: bool = False, no_learn: bool = False) -> float:
         state: int = self.environment.reset()

@@ -29,7 +29,7 @@ def calc_decay(max_ep: int, min_epsilon: float, target_percent: float = 0.8) -> 
     return math.pow(min_epsilon, 1.0 / target_episodes)
 
 
-class IQTableInterface(ABC):
+class IQModelInterface(ABC):
     def __init__(self, num_states: int, num_actions: int) -> None:
         self.num_states: int = num_states
         self.num_actions: int = num_actions
@@ -46,10 +46,12 @@ class IQTableInterface(ABC):
                 if len(self.history) > max_history:
                     self.history = self.history[1:]
 
+    # Getter for Q model
     @abstractmethod
     def get_model(self) -> object:
         pass
 
+    # Setter for Q model
     @abstractmethod
     def set_model(self, model: object) -> None:
         pass
@@ -67,7 +69,7 @@ class IQTableInterface(ABC):
     # At a certain 'state' we took 'action' and received 'reward' and ended up in 'new_state'
     # Update the QTable to represent this
     @abstractmethod
-    def update_q_table(self, state: object, action: int, reward: float, new_state: object, done: bool = False) -> None:
+    def update_q_model(self, state: object, action: int, reward: float, new_state: object, done: bool = False) -> None:
         pass
 
 

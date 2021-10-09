@@ -15,16 +15,10 @@ class QModel(IQModelInterface):
         # No need to store history for a Q Table
         self.ignore_history: bool = True
 
-    def get_model(self) -> np.ndarray:
-        return self.model
-
-    def set_model(self, model: np.ndarray) -> None:
-        self.model = model
-
-    def get_q_value(self, state: int, action: int) -> float:
+    def get_value(self, state: int, action: int) -> float:
         return float(self.model[state, action])
 
-    def get_q_state(self, state: int) -> np.ndarray:
+    def get_state(self, state: int) -> np.ndarray:
         return self.model[state]
 
     def set_q_value(self, state: int, action: int, value: float) -> None:

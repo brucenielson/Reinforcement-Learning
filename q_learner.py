@@ -31,26 +31,6 @@ class QLearner(IQLearnerInterface):
     def set_average_over(self, value: float) -> None:
         self.average_over = value
 
-    def set_min_alpha(self, value: float) -> None:
-        self.min_alpha = value
-
-    def set_min_epsilon(self, value: float) -> None:
-        self.min_epsilon = value
-
-    def get_q_value(self, state: int, action: int) -> float:
-        return self.q_model.get_q_value(state, action)
-
-    def get_e_greedy_action(self, state: int, e_greedy: bool = True) -> int:
-        # Get a random value from 0.0 to 1.0
-        rand_val: float = float(np.random.rand())
-        # Grab a random action
-        action: int = np.random.randint(0, self.num_actions)
-        # If we're doing e_greedy, then get a random action if rand_val < current epsilon
-        if not (e_greedy and rand_val < self.epsilon):
-            # Take best action instead of random action
-            action = int(np.argmax(self.q_model.get_q_state(state)))
-        return action
-
     def update_model(self, state: int, action: int, reward: float, new_state: int, done: bool = False) -> None:
         # Save history if DQN
         self.q_model.save_history(state, action, reward, new_state, done)
@@ -70,7 +50,7 @@ class QLearner(IQLearnerInterface):
             if render:
                 self.environment.render()
             # Pick an action
-            action: int = self.get_e_greedy_action(state)
+            action: int = self.get_action(state)
             # Take action and advance environment
             new_state: int
             reward: float

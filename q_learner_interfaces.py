@@ -5,6 +5,7 @@
 from signal import signal, SIGINT
 from abc import ABC, abstractmethod
 import math
+import numpy as np
 
 
 class UnusedConstructor(Exception):
@@ -35,6 +36,7 @@ class IQModelInterface(ABC):
         self.num_actions: int = num_actions
         self.history: list = []
         self.ignore_history: bool = False
+        self.model: object = None
 
     # For Deep Reinforcement Learning we need a history of all (state, action, reward, new_state, done) tuples to
     # train with. For a Q-table model we can just ignore this by setting the ignore_history flag instance variable.
@@ -46,24 +48,20 @@ class IQModelInterface(ABC):
                 if len(self.history) > max_history:
                     self.history = self.history[1:]
 
-    # Getter for Q model
-    @abstractmethod
     def get_model(self) -> object:
-        pass
+        return self.model
 
-    # Setter for Q model
-    @abstractmethod
     def set_model(self, model: object) -> None:
-        pass
+        self.model = model
 
     # Given a state, return the current Q value for all actions in that state
     @abstractmethod
-    def get_q_state(self, state: object) -> object:
+    def get_state(self, state: object) -> np.ndarray:
         pass
 
     # Given a state and action, return the current Q value for that state / action combo
     @abstractmethod
-    def get_q_value(self, state: object, action: int) -> object:
+    def get_value(self, state: object, action: int) -> object:
         pass
 
     # At a certain 'state' we took 'action' and received 'reward' and ended up in 'new_state'
@@ -112,74 +110,109 @@ class IQLearnerInterface(ABC):
         self.debug: bool = False                                # Debug flag to give debug info
         # Stats
         self.report_every_nth = 1                               # Show every nth episode. Defaults to every episode.
+        self.q_model: IQModelInterface or None = None                   # Q Model we'll use
 
+    # Set this to 1 to show feedback on every training episode. Set higher than 1 to show fewer. e.g. 100 = only report
+    # every 100th episode, etc.
     def report_every_nth_episode(self, every_nth: int) -> None:
         self.report_every_nth = every_nth
 
+    # If you reset the min_epsilon you'll need to call recalculate_decay to calculate a new decay rate
+    # You can also call this to set a different 'target_percent' (i.e. to get to min_epsilon by something different
+    # then 0.9 (90%) of max_episodes
     def recalculate_decay(self, target_percent: float = 0.9) -> None:
         if self.max_episodes is not None:
             self.decay = calc_decay(self.max_episodes, self.min_epsilon, target_percent=target_percent)
 
+    # Set the minimum learning rate (alpha) to not decay below
     def set_min_alpha(self, min_alpha: float) -> None:
         # Don't decay below this alpha
         self.min_alpha = min_alpha
 
-    def set_min_epsilon(self, min_epsilon: float) -> None:
+    # Set the minimum epsilon (chance of random move) to not decay below
+    def set_min_epsilon(self, min_epsilon: float, recalculate_decay: bool = True) -> None:
         # Don't decay below this epsilon
         self.min_epsilon = min_epsilon
+        if recalculate_decay:
+            self.recalculate_decay()
 
+    # Set gamma (discount factor)
     def set_gamma(self, gamma: float) -> None:
         # Set discount factor
         self.gamma = gamma
 
+    # Set learning rate (alpha)
     def set_alpha(self, alpha: float) -> None:
         # Set learning rate
         self.alpha = alpha
 
+    # Manually set what decay rate you want instead of letting the learner calculate it off of max_episodes
     def set_decay(self, decay: float) -> None:
         # Set decay
         self.decay = decay
 
+    # Set the starting rate of making a random move (i.e. epsilon)
     def set_epsilon(self, epsilon: float) -> None:
         # Set epsilon (chance of random move)
         self.epsilon = epsilon
 
+    # Return the model being used
+    def get_model(self) -> IQModelInterface:
+        return self.q_model
+
+    # Get next action based on current model / random move if e_greedy
+    def get_action(self, state: int, e_greedy: bool = True) -> int:
+        # Get a random value from 0.0 to 1.0
+        rand_val: float = float(np.random.rand())
+        # Grab a random action
+        action: int = np.random.randint(0, self.num_actions)
+        # If we're doing e_greedy, then get a random action if rand_val < current epsilon
+        if not (e_greedy and rand_val < self.epsilon):
+            # Take best action instead of random action
+            action = int(np.argmax(self.get_model().get_state(state)))
+        return action
+
+    # Passing an update tuple to the model to update the model
     @abstractmethod
     def update_model(self, state: int, action: int, reward: float, new_state: int, done: bool = False) -> None:
         pass
 
-    @abstractmethod
-    def get_e_greedy_action(self, state: object, e_greedy=True) -> int:
-        pass
-
+    # Save the model to a file
     @abstractmethod
     def save_model(self, file_name: str = "QModel") -> None:
         pass
 
+    # Load the model from a file
     @abstractmethod
-    def load_model(self, filename: str = "QModel") -> None:
+    def load_model(self, file_name: str = "QModel") -> None:
         pass
 
+    # Train the model
     @abstractmethod
     def train(self, decay_alpha: bool = True) -> None:
         pass
 
+    # Run one training episode
     @staticmethod
     def run_episode(self, render: bool = False, no_learn: bool = False) -> float:
         pass
 
+    # Set class debug flag
     @staticmethod
     def set_debug(setting: bool) -> None:
         IQLearnerInterface.debug = setting
 
+    # Get class debug flag
     @staticmethod
     def get_debug() -> bool:
         return IQLearnerInterface.debug
 
+    # Set class abort flag (to manually end training)
     @staticmethod
     def set_abort(setting: bool) -> None:
         IQLearnerInterface.abort = setting
 
+    # Get class abort flag (to manually end training)
     @staticmethod
     def get_abort() -> bool:
         return IQLearnerInterface.abort

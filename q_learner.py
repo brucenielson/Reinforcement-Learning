@@ -7,7 +7,6 @@ class QLearner(IQLearnerInterface):
             -> None:
         super(QLearner, self).__init__(environment, num_states, num_actions, max_episodes)
         # Report states and actions in env
-        print("States: ", num_states, "Actions: ", num_actions)
         # Create model
         self.q_model = QModel(num_states, num_actions)
         self.min_alpha: float = 0.05

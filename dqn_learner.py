@@ -6,8 +6,6 @@ class DQNLearner(IQLearnerInterface):
     def __init__(self, environment: IEnvironmentInterface, num_states: int, num_actions: int, max_episodes: int = None,
                  lr: float = 0.001) -> None:
         super(DQNLearner, self).__init__(environment, num_states, num_actions, max_episodes)
-        # Report states and actions in env
-        print("States: ", num_states, "Actions: ", num_actions)
         # Create model
         self.q_model = DQNModel(num_states, num_actions, lr=lr)
 

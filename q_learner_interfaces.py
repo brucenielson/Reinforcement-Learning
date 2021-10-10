@@ -97,6 +97,9 @@ class IQLearnerInterface(ABC):
     def __init__(self, environment: IEnvironmentInterface, num_states: int, num_actions: int, max_episodes: int = None):
         self.num_states: int = num_states                       # Number of world states
         self.num_actions: int = num_actions                     # Number of actions available per world state
+        # Report states and actions in env
+        if IQLearnerInterface.get_debug():
+            print("States: ", num_states, "Actions: ", num_actions)
         self.environment: IEnvironmentInterface = environment   # Environment to do updates
         self.max_episodes: int = max_episodes                   # Number of training episodes to run
         # Set min hyper parameters - don't decay below these values
@@ -224,7 +227,7 @@ class IQLearnerInterface(ABC):
         converge_count: int = 0
         # Check if we converged.
         # We define converged as max_converge_count rounds without improvement once we reach min_epsilon
-        while (self.max_episodes is None or self.episode <= self.max_episodes) and \
+        while (self.max_episodes is None or self.episode < self.max_episodes) and \
                 (converge_count < max_converge_count or self.epsilon > self.min_epsilon):
             # Reset score for this episode and reset if we printed an update for this episode
             score = 0

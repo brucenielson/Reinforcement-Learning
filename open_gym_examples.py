@@ -19,18 +19,18 @@ def lunar_lander(seed=42):
     # How to get number of states for reinforcement learning
     num_states = environment.observation_space.shape[0]
     lr = 0.001
+    DQNLearner.set_debug(True)
     dqn_learner = DQNLearner(environment, num_states, num_actions, max_episodes=100, lr=lr)
     dqn_learner.set_gamma(0.99)
     dqn_learner.train()
     print("Final Epsilon", round(dqn_learner.epsilon, 3))
-    print("Final Alpha:", round(dqn_learner.alpha, 3))
     end_time = time.time()
     print("Total run time: ", round(end_time-start_time))
     for i in range(4):
         dqn_learner.render_episode()
     # dqn.ShowGraphs()
     dqn_learner.save_model()
-    print("Average Score:", dqn_learner.get_average_score(10))
+    print("Average Score:", dqn_learner.get_average_score(100))
     return dqn_learner.q_model
 
 
@@ -98,8 +98,8 @@ def taxi_more_training():
     return q_learner
 
 
-# ql = lunar_lander()
-ql = taxi()
+ql = lunar_lander()
+# ql = taxi()
 # ql = load_taxi()
 # ql = taxi_more_training()
 # Taxi scores: https://medium.com/@anirbans17/reinforcement-learning-for-taxi-v2-edd7c5b76869

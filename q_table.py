@@ -1,6 +1,7 @@
 from q_learner_interfaces import IQModelInterface
 import numpy as np
 import pickle
+from copy import deepcopy
 
 
 # class AlphaRequiredException(Exception):
@@ -35,6 +36,12 @@ class QModel(IQModelInterface):
 
     def load_model(self, file_name: str = "QModel") -> None:
         self._model = pickle.load(open(file_name+".pkl", "rb"))
+
+    def best_model_checkpoint(self):
+        self._best_model = deepcopy(self._model)
+
+    def use_best_model(self):
+        self._model = deepcopy(self._best_model)
 
     def q_sparseness(self) -> float:
         zeros = np.sum(self._model == 0)

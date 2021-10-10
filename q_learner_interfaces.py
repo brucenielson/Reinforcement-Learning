@@ -37,6 +37,7 @@ class IQModelInterface(ABC):
         self._history: list = []
         self._ignore_history: bool = False
         self._model: object = None
+        self._best_model: object = None
 
     # For Deep Reinforcement Learning we need a history of all (state, action, reward, new_state, done) tuples to
     # train with. For a Q-table model we can just ignore this by setting the ignore_history flag instance variable.
@@ -47,6 +48,18 @@ class IQModelInterface(ABC):
             if max_history is not None:
                 if len(self._history) > max_history:
                     self._history = self._history[1:]
+
+    # Call this function to mark that this is the best model so far
+    # It will cause the model class to back up the underlying model
+    # Use the method use_best_model to set back to last best model
+    @abstractmethod
+    def best_model_checkpoint(self):
+        pass
+
+    # Set the model to be the best one so far
+    @abstractmethod
+    def use_best_model(self):
+        pass
 
     # Given a state, return the current Q value for all actions in that state
     @abstractmethod
@@ -243,7 +256,6 @@ class IQLearnerInterface(ABC):
         score: float = 0
         avg_score: float = 0.0
         printed_episode: bool = False
-        best_model: IQModelInterface or None = None
         best_avg_score: float = -float('inf')
         converge_count: int = 0
         # Check if we converged.
@@ -269,7 +281,8 @@ class IQLearnerInterface(ABC):
                 converge_count += 1
             else:
                 converge_count = 0
-                best_model = self._q_model
+                # Checkpoint best model
+                self._q_model.best_model_checkpoint()
             # Show results of a this round
             if self._episode % self._report_every_nth == 0:
                 self.print_progress(converge_count, score, avg_score)
@@ -294,7 +307,7 @@ class IQLearnerInterface(ABC):
         if not printed_episode:
             self.print_progress(converge_count, score, avg_score)
         # Set model to be the best one we found so far (based on avg_score)
-        self._q_model = best_model
+        self._q_model.use_best_model()
 
     def render_episode(self) -> float:
         return self.run_episode(render=True, no_learn=True)

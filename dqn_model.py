@@ -90,3 +90,11 @@ class DQNModel(IQModelInterface):
 
     def load_model(self, file_name: str = "QModel") -> None:
         self._model = load_model(file_name+".h5")
+
+    def best_model_checkpoint(self):
+        self._best_model = self._model.get_weights()
+
+    def use_best_model(self):
+        self._model.set_weights(self._best_model)
+
+

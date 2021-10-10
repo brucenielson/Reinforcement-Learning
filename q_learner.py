@@ -8,24 +8,41 @@ class QLearner(IQLearnerInterface):
         super(QLearner, self).__init__(environment, num_states, num_actions, max_episodes)
         # Report states and actions in env
         # Create model
-        self.q_model = QModel(num_states, num_actions)
-        self.min_alpha: float = 0.05
-        self.alpha: float = 0.1                                 # Learning Rate (alpha)
+        self._q_model: QModel = QModel(num_states, num_actions)
+        self._min_alpha: float = 0.05
+        self._alpha: float = 0.1                                 # Learning Rate (alpha)
 
     def update_model(self, state: int, action: int, reward: float, new_state: int, done: bool = False) -> None:
-        self.q_model.save_history(state, action, reward, new_state, done)
-        self.q_model.update_q_model(state, action, reward, new_state, done, self.gamma, self.alpha)
+        self._q_model.save_history(state, action, reward, new_state, done)
+        self._q_model.update_q_model(state, action, reward, new_state, done, self._gamma, self._alpha)
 
     def print_progress(self, converge_count: int, score: float, avg_score: float):
-        print("Episode:", self.episode, "Last High:", converge_count, "Epsilon:", round(self.epsilon, 4),
-              "Alpha:", round(self.alpha, 4), "Score:", round(score, 2), "Avg Score:", round(avg_score, 2))
+        print("Episode:", self._episode, "Last High:", converge_count, "Epsilon:", round(self._epsilon, 4),
+              "Alpha:", round(self._alpha, 4), "Score:", round(score, 2), "Avg Score:", round(avg_score, 2))
 
-    # Set the minimum learning rate (alpha) to not decay below
-    def set_min_alpha(self, min_alpha: float) -> None:
-        # Don't decay below this alpha
-        self.min_alpha = min_alpha
+    # Getter for alpha
+    @property
+    def min_alpha(self) -> float:
+        return self._min_alpha
 
-    # Set learning rate (alpha)
-    def set_alpha(self, alpha: float) -> None:
-        # Set learning rate
-        self.alpha = alpha
+    # Setter for alpha (discount factor)
+    @min_alpha.setter
+    def min_alpha(self, min_alpha: float) -> None:
+        # Set discount factor
+        self._min_alpha = min_alpha
+
+    # Getter for alpha
+    @property
+    def alpha(self) -> float:
+        return self._alpha
+
+    # Setter for alpha (discount factor)
+    @alpha.setter
+    def alpha(self, alpha: float) -> None:
+        # Set discount factor
+        self._alpha = alpha
+
+    # Overridden Getter for the model being used
+    @property
+    def q_model(self) -> QModel:
+        return self._q_model

@@ -21,7 +21,7 @@ def lunar_lander(seed=42):
     lr = 0.001
     DQNLearner.set_debug(True)
     dqn_learner = DQNLearner(environment, num_states, num_actions, max_episodes=1000, lr=lr)
-    dqn_learner.set_gamma(0.99)
+    dqn_learner.gamma = 0.99
     dqn_learner.train()
     print("Final Epsilon", round(dqn_learner.epsilon, 3))
     end_time = time.time()
@@ -44,7 +44,7 @@ def load_lunar_lander(seed=42):
     num_states = environment.observation_space.shape[0]
     dqn_learner = DQNLearner(environment, num_states, num_actions)
     dqn_learner.load_model("BestQModel")
-    for i in range(4):
+    for i in range(3):
         dqn_learner.render_episode()
     print("Average Score:", dqn_learner.get_average_score(10))
     return dqn_learner
@@ -61,7 +61,7 @@ def taxi(seed=42):
 
     QLearner.set_debug(True)
     q_learner: QLearner = QLearner(environment, num_states, num_actions, 10000)
-    q_learner.set_alpha(0.5)
+    q_learner.alpha = 0.5
     q_learner.report_every_nth_episode(100)
     q_learner.train()
     print("Final Epsilon", round(q_learner.epsilon, 4))
@@ -99,8 +99,9 @@ def taxi_more_training():
     num_actions: int = env.action_space.n
     num_states: int = env.observation_space.n
 
-    q_learner: QLearner = QLearner(environment, num_states, num_actions, 1000000)
+    q_learner: QLearner = QLearner(environment, num_states, num_actions, 1000)
     q_learner.load_model("TaxiQModel")
+    print("Q Sparseness: ", q_learner.q_model.q_sparseness())
     q_learner.train()
     print("Final Epsilon", round(q_learner.epsilon, 4))
     print("Final Alpha:", round(q_learner.alpha, 4))
@@ -110,7 +111,7 @@ def taxi_more_training():
     #     q_learner.render_episode()
     # q_learner.ShowGraphs()
     q_learner.save_model()
-    print("Average Score:", q_learner.get_average_score(10000))
+    print("Average Score:", q_learner.get_average_score(100))
     return q_learner
 
 

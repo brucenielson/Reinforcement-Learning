@@ -10,16 +10,16 @@ class OpenGymEnvironmentInterface(IEnvironmentInterface):
     def __init__(self, open_gym_env: object = None) -> None:
         if open_gym_env is None:
             raise OpenGymEnvironmentRequired
-        self.open_gym_env: object = open_gym_env
+        self._open_gym_env: object = open_gym_env
 
     def reset(self) -> object:
         # noinspection PyUnresolvedReferences
-        return self.open_gym_env.reset()
+        return self._open_gym_env.reset()
 
     def render(self) -> None:
         # noinspection PyUnresolvedReferences
-        self.open_gym_env.render()
+        self._open_gym_env.render()
 
     def step(self, action: int) -> (object, float, bool, object):
         # noinspection PyUnresolvedReferences
-        return self.open_gym_env.step(action)
+        return self._open_gym_env.step(action)

@@ -32,27 +32,21 @@ def calc_decay(max_ep: int, min_epsilon: float, target_percent: float = 0.8) -> 
 
 class IQModelInterface(ABC):
     def __init__(self, num_states: int, num_actions: int) -> None:
-        self.num_states: int = num_states
-        self.num_actions: int = num_actions
-        self.history: list = []
-        self.ignore_history: bool = False
-        self.model: object = None
+        self._num_states: int = num_states
+        self._num_actions: int = num_actions
+        self._history: list = []
+        self._ignore_history: bool = False
+        self._model: object = None
 
     # For Deep Reinforcement Learning we need a history of all (state, action, reward, new_state, done) tuples to
     # train with. For a Q-table model we can just ignore this by setting the ignore_history flag instance variable.
     def save_history(self, state: int, action: int, reward: float, new_state: int, done: bool, max_history: int = None):
-        if not self.ignore_history:
-            self.history.append((state, action, reward, new_state, done))
+        if not self._ignore_history:
+            self._history.append((state, action, reward, new_state, done))
             # If history is very large, we can drop off some of the earlier ones
             if max_history is not None:
-                if len(self.history) > max_history:
-                    self.history = self.history[1:]
-
-    def get_model(self) -> object:
-        return self.model
-
-    def set_model(self, model: object) -> None:
-        self.model = model
+                if len(self._history) > max_history:
+                    self._history = self._history[1:]
 
     # Given a state, return the current Q value for all actions in that state
     @abstractmethod
@@ -95,112 +89,131 @@ class IQLearnerInterface(ABC):
     debug: bool = False     # Debug flag to give debug info
 
     def __init__(self, environment: IEnvironmentInterface, num_states: int, num_actions: int, max_episodes: int = None):
-        self.num_states: int = num_states                       # Number of world states
-        self.num_actions: int = num_actions                     # Number of actions available per world state
+        self._num_states: int = num_states                       # Number of world states
+        self._num_actions: int = num_actions                     # Number of actions available per world state
         # Report states and actions in env
         if IQLearnerInterface.get_debug():
             print("States: ", num_states, "Actions: ", num_actions)
-        self.environment: IEnvironmentInterface = environment   # Environment to do updates
-        self.max_episodes: int = max_episodes                   # Number of training episodes to run
+        self._environment: IEnvironmentInterface = environment   # Environment to do updates
+        self._max_episodes: int = max_episodes                   # Number of training episodes to run
         # Set min hyper parameters - don't decay below these values
-        self.min_epsilon: float = 0.001
+        self._min_epsilon: float = 0.001
         # Defaults for hyper parameters
-        self.epsilon: float = 0.99                              # Chance of e-greedy random move
-        self.decay: float = 0.99                                # Decay rate for epsilon and possibly alpha
-        self.gamma: float = 0.9                                 # Future discount factor
+        self._epsilon: float = 0.99                              # Chance of e-greedy random move
+        self._decay: float = 0.99                                # Decay rate for epsilon and possibly alpha
+        self._gamma: float = 0.9                                 # Future discount factor
         # If max_episodes is set, default decay to be 80% of that
         if max_episodes is not None:
-            self.decay = calc_decay(max_episodes, self.min_epsilon, target_percent=0.9)
+            self._decay = calc_decay(max_episodes, self._min_epsilon, target_percent=0.9)
             if IQLearnerInterface.debug:
-                print("Setting decay to: ", self.decay)
+                print("Setting decay to: ", self._decay)
         # Flags
         self.abort: bool = False                                # Abort flag to stop training
         self.debug: bool = False                                # Debug flag to give debug info
         # Stats
-        self.report_every_nth = 1                               # Show every nth episode. Defaults to every episode.
-        self.q_model: IQModelInterface or None = None           # Q Model we'll use
-        self.episode: int = 0                                   # Count of episodes
+        self._report_every_nth = 1                               # Show every nth episode. Defaults to every episode.
+        self._q_model: IQModelInterface or None = None           # Q Model we'll use
+        self._episode: int = 0                                   # Count of episodes
         # Track scores, averages, and states across a session of training
-        self.scores: list = []
-        self.running_average: list = []
-        self.average_blocks: list = []
+        self._scores: list = []
+        self._running_average: list = []
+        self._average_blocks: list = []
         # For tracking training values progress and determining best model
         # Default to 100 or to 1/10th of max episodes, whichever is smaller. But don't go below 1.
-        self.average_over: int = 100
+        self._average_over: int = 100
         if max_episodes is not None:
-            self.average_over: int = max(min(100, max_episodes//10), 1)
+            self._average_over: int = max(min(100, max_episodes//10), 1)
 
     # Set this to 1 to show feedback on every training episode. Set higher than 1 to show fewer. e.g. 100 = only report
     # every 100th episode, etc.
     def report_every_nth_episode(self, every_nth: int) -> None:
-        self.report_every_nth = every_nth
+        self._report_every_nth = every_nth
 
     # If you reset the min_epsilon you'll need to call recalculate_decay to calculate a new decay rate
     # You can also call this to set a different 'target_percent' (i.e. to get to min_epsilon by something different
     # then 0.9 (90%) of max_episodes
     def recalculate_decay(self, target_percent: float = 0.9) -> None:
-        if self.max_episodes is not None:
-            self.decay = calc_decay(self.max_episodes, self.min_epsilon, target_percent=target_percent)
+        if self._max_episodes is not None:
+            self._decay = calc_decay(self._max_episodes, self._min_epsilon, target_percent=target_percent)
             if IQLearnerInterface.debug:
-                print("Setting decay to: ", self.decay)
+                print("Setting decay to: ", self._decay)
 
     # Set the minimum epsilon (chance of random move) to not decay below
     def set_min_epsilon(self, min_epsilon: float, recalculate_decay: bool = True) -> None:
         # Don't decay below this epsilon
-        self.min_epsilon = min_epsilon
+        self._min_epsilon = min_epsilon
         if recalculate_decay:
             self.recalculate_decay()
 
-    # Set gamma (discount factor)
-    def set_gamma(self, gamma: float) -> None:
-        # Set discount factor
-        self.gamma = gamma
+    # Getter for gamma
+    @property
+    def gamma(self) -> float:
+        return self._gamma
 
-    # Manually set what decay rate you want instead of letting the learner calculate it off of max_episodes
-    def set_decay(self, decay: float) -> None:
+    # Setter for gamma (discount factor)
+    @gamma.setter
+    def gamma(self, gamma: float) -> None:
+        # Set discount factor
+        self._gamma = gamma
+
+    # Getter for decay
+    @property
+    def decay(self) -> float:
+        return self._decay
+
+    # Setter to manually set what decay rate you want instead of letting the learner calculate it off of max_episodes
+    @decay.setter
+    def decay(self, decay: float) -> None:
         # Set decay
-        self.decay = decay
+        self._decay = decay
+
+    # Getter for epsilon (chance of random move)
+    @property
+    def epsilon(self) -> float:
+        return self._epsilon
 
     # Set the starting rate of making a random move (i.e. epsilon)
-    def set_epsilon(self, epsilon: float) -> None:
+    @epsilon.setter
+    def epsilon(self, epsilon: float) -> None:
         # Set epsilon (chance of random move)
-        self.epsilon = epsilon
+        self._epsilon = epsilon
 
-    # Return the model being used
-    def get_model(self) -> IQModelInterface:
-        return self.q_model
+    # Getter for the model being used
+    @property
+    def q_model(self) -> IQModelInterface:
+        return self._q_model
 
     # Get next action based on current model / random move if e_greedy
     def get_action(self, state: int, e_greedy: bool = True) -> int:
         # Get a random value from 0.0 to 1.0
         rand_val: float = float(np.random.rand())
         # Grab a random action
-        action: int = np.random.randint(0, self.num_actions)
+        action: int = np.random.randint(0, self._num_actions)
         # If we're doing e_greedy, then get a random action if rand_val < current epsilon
-        if not (e_greedy and rand_val < self.epsilon):
+        if not (e_greedy and rand_val < self._epsilon):
             # Take best action instead of random action
-            action = int(np.argmax(self.get_model().get_state(state)))
+            action = int(np.argmax(self.q_model.get_state(state)))
         return action
 
     # Save the model to a file
     def save_model(self, file_name: str = "QModel") -> None:
-        self.get_model().save_model(file_name)
+        self.q_model.save_model(file_name)
 
     # Load the model from a file
     def load_model(self, file_name: str = "QModel") -> None:
-        self.get_model().load_model(file_name)
+        self.q_model.load_model(file_name)
 
     def run_episode(self, render: bool = False, no_learn: bool = False) -> float:
-        state: int = self.environment.reset()
+        state: int = self._environment.reset()
         score: float = 0
         done: bool = False
         if no_learn:
-            self.epsilon = 0.0
+            self._epsilon = 0.0
         # Loop until episode is done
         while not done:
             # If we're rendering the environment, display it
             if render:
-                self.environment.render()
+                self._environment.render()
             # Pick an action
             action: int
             if not no_learn:
@@ -212,7 +225,7 @@ class IQLearnerInterface(ABC):
             reward: float
             done: bool
             info: object
-            new_state, reward, done, info = self.environment.step(action)
+            new_state, reward, done, info = self._environment.step(action)
             # Collect reward
             score += reward
             # If we are learning, update Q Table
@@ -235,41 +248,41 @@ class IQLearnerInterface(ABC):
         converge_count: int = 0
         # Check if we converged.
         # We define converged as max_converge_count rounds without improvement once we reach min_epsilon
-        while (self.max_episodes is None or self.episode < self.max_episodes) and \
-                (converge_count < max_converge_count or self.epsilon > self.min_epsilon):
+        while (self._max_episodes is None or self._episode < self._max_episodes) and \
+                (converge_count < max_converge_count or self._epsilon > self._min_epsilon):
             # Reset score for this episode and reset if we printed an update for this episode
             score = 0
             printed_episode = False
-            self.episode += 1
+            self._episode += 1
             # Reset score for this new episode
             # Run an episode
             score += self.run_episode()
             # Save off score
-            self.scores.append(score)
+            self._scores.append(score)
             # Get current average score. Take the last 'average_over' amount
-            avg_score = float(np.mean(self.scores[-self.average_over:]))
+            avg_score = float(np.mean(self._scores[-self._average_over:]))
             # Track averages
-            self.running_average.append(avg_score)
+            self._running_average.append(avg_score)
             # Convergence criteria
             best_avg_score = max(best_avg_score, avg_score)
             if avg_score < best_avg_score:
                 converge_count += 1
             else:
                 converge_count = 0
-                best_model = self.q_model
+                best_model = self._q_model
             # Show results of a this round
-            if self.episode % self.report_every_nth == 0:
+            if self._episode % self._report_every_nth == 0:
                 self.print_progress(converge_count, score, avg_score)
                 printed_episode = True
             # Decay after each episode
-            self.epsilon = max(self.epsilon * self.decay, self.min_epsilon)
+            self._epsilon = max(self._epsilon * self._decay, self._min_epsilon)
             # TODO: I'm not sure this is the right way to handle alpha decay - maybe I should call am abstract function
-            if decay_alpha and hasattr(self, 'alpha') and hasattr(self, 'min_alpha'):
+            if decay_alpha and hasattr(self, '_alpha') and hasattr(self, '_min_alpha'):
                 # noinspection PyAttributeOutsideInit
-                self.alpha = max(self.alpha * self.decay, self.min_alpha)
+                self._alpha = max(self._alpha * self._decay, self._min_alpha)
             # Track every Nth average score to make the final graph look more readable
-            if self.episode % every_nth_average == 0:
-                self.average_blocks.append(avg_score)
+            if self._episode % every_nth_average == 0:
+                self._average_blocks.append(avg_score)
             # If we abort, just break the train loop and move on
             if IQLearnerInterface.get_abort():
                 # Reset abort
@@ -281,13 +294,13 @@ class IQLearnerInterface(ABC):
         if not printed_episode:
             self.print_progress(converge_count, score, avg_score)
         # Set model to be the best one we found so far (based on avg_score)
-        self.q_model = best_model
+        self._q_model = best_model
 
     def render_episode(self) -> float:
         return self.run_episode(render=True, no_learn=True)
 
     def set_average_over(self, value: float) -> None:
-        self.average_over = value
+        self._average_over = value
 
     def get_average_score(self, iterations=100) -> float:
         scores = []

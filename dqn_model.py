@@ -83,7 +83,7 @@ class DQNModel(IQModelInterface):
         self.model.fit(X, y, epochs=1, verbose=0)
 
     def save_model(self, file_name: str = "QModel") -> None:
-        self.model.save(file_name+".h5")
+        self.get_model().save(file_name+".h5")
 
     def load_model(self, file_name: str = "QModel") -> None:
-        self.model.set_model(load_model(file_name+".h5"))
+        self.set_model(load_model(file_name+".h5"))

@@ -20,7 +20,7 @@ def lunar_lander(seed=42):
     num_states = environment.observation_space.shape[0]
     lr = 0.001
     DQNLearner.set_debug(True)
-    dqn_learner = DQNLearner(environment, num_states, num_actions, max_episodes=100, lr=lr)
+    dqn_learner = DQNLearner(environment, num_states, num_actions, max_episodes=1000, lr=lr)
     dqn_learner.set_gamma(0.99)
     dqn_learner.train()
     print("Final Epsilon", round(dqn_learner.epsilon, 3))
@@ -32,6 +32,22 @@ def lunar_lander(seed=42):
     dqn_learner.save_model()
     print("Average Score:", dqn_learner.get_average_score(100))
     return dqn_learner.q_model
+
+
+def load_lunar_lander(seed=42):
+    environment = gym.make('LunarLander-v2')
+    # np.random.seed(seed)
+    # environment.seed(seed)
+    # random.seed(seed)
+    num_actions = environment.action_space.n
+    # How to get number of states for reinforcement learning
+    num_states = environment.observation_space.shape[0]
+    dqn_learner = DQNLearner(environment, num_states, num_actions)
+    dqn_learner.load_model("BestQModel")
+    for i in range(4):
+        dqn_learner.render_episode()
+    print("Average Score:", dqn_learner.get_average_score(10))
+    return dqn_learner
 
 
 def taxi(seed=42):
@@ -72,8 +88,8 @@ def load_taxi():
     # for i in range(4):
     #     q_learner.render_episode()
     print("Q Sparseness: ", q_learner.q_model.q_sparseness())
-    print("Average Score:", q_learner.get_average_score(10000))
-    return q_learner
+    print("Average Score:", q_learner.get_average_score(100))
+    return q_learner.q_model
 
 
 def taxi_more_training():
@@ -99,7 +115,8 @@ def taxi_more_training():
 
 
 ql = lunar_lander()
-# ql = taxi()
-# ql = load_taxi()
+# ql = load_lunar_lander()
+# ql1 = taxi()
+# ql2 = load_taxi()
 # ql = taxi_more_training()
 # Taxi scores: https://medium.com/@anirbans17/reinforcement-learning-for-taxi-v2-edd7c5b76869

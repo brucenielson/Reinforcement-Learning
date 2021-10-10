@@ -126,7 +126,9 @@ class IQLearnerInterface(ABC):
         self.average_blocks: list = []
         # For tracking training values progress and determining best model
         # Default to 100 or to 1/10th of max episodes, whichever is smaller. But don't go below 1.
-        self.average_over: int = max(min(100, max_episodes//10), 1)
+        self.average_over: int = 100
+        if max_episodes is not None:
+            self.average_over: int = max(min(100, max_episodes//10), 1)
 
     # Set this to 1 to show feedback on every training episode. Set higher than 1 to show fewer. e.g. 100 = only report
     # every 100th episode, etc.
@@ -192,13 +194,19 @@ class IQLearnerInterface(ABC):
         state: int = self.environment.reset()
         score: float = 0
         done: bool = False
+        if no_learn:
+            self.epsilon = 0.0
         # Loop until episode is done
         while not done:
             # If we're rendering the environment, display it
             if render:
                 self.environment.render()
             # Pick an action
-            action: int = self.get_action(state)
+            action: int
+            if not no_learn:
+                action = self.get_action(state)
+            else:
+                action = self.get_action(state, e_greedy=False)
             # Take action and advance environment
             new_state: int
             reward: float

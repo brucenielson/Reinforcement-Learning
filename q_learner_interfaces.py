@@ -84,6 +84,9 @@ class IQModelInterface(ABC):
 
 
 class IEnvironmentInterface(ABC):
+    def __init__(self, environment: object) -> None:
+        self._environment: object = environment
+
     @abstractmethod
     def reset(self):
         pass
@@ -95,6 +98,11 @@ class IEnvironmentInterface(ABC):
     @abstractmethod
     def step(self, action: int):
         pass
+
+    # Getter for _environment
+    @property
+    def environment(self) -> object:
+        return self._environment
 
 
 class IQLearnerInterface(ABC):
@@ -353,3 +361,4 @@ class IQLearnerInterface(ABC):
     @staticmethod
     def get_abort() -> bool:
         return IQLearnerInterface.abort
+

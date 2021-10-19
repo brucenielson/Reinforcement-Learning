@@ -21,12 +21,13 @@ def lunar_lander(seed=43):
     num_states = environment.observation_space.shape[0]
     lr = 0.001
     DQNLearner.set_debug(True)
-    dqn_learner = DQNLearner(environment, num_states, num_actions, max_episodes=1000, lr=lr)
-    dqn_learner.decay = 0.98
+    dqn_learner = DQNLearner(environment, num_states, num_actions, max_episodes=500, lr=lr)
+    # dqn_learner.decay = 0.98
     dqn_learner.epsilon = 1.0
     dqn_learner.gamma = 0.99
     dqn_learner.set_average_over(100)
-    dqn_learner.train(max_converge_count=66)
+    # dqn_learner.recalculate_decay(0.5)
+    dqn_learner.train()
     print("Final Epsilon", round(dqn_learner.epsilon, 3))
     end_time = time.time()
     print("Total run time: ", round(end_time-start_time))

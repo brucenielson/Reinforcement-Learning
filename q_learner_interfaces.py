@@ -315,7 +315,7 @@ class IQLearnerInterface(ABC):
         if not printed_episode:
             self.print_progress(converge_count, score, avg_score)
         # Set model to be the best one we found so far (based on avg_score)
-        # self._q_model.use_best_model()
+        self._q_model.use_best_model()
 
     def render_episode(self) -> float:
         return self.run_episode(render=True, no_learn=True)

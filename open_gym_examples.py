@@ -11,23 +11,22 @@ import dqn_model
 import q_learner_interfaces
 
 
-def lunar_lander(seed=42):
+def lunar_lander(seed=43):
     start_time = time.time()
 
     environment = gym.make('LunarLander-v2')
-    np.random.seed(seed)
-    environment.seed(seed)
-    random.seed(seed)
+    set_seed(seed, environment)
     num_actions = environment.action_space.n
     # How to get number of states for reinforcement learning
     num_states = environment.observation_space.shape[0]
     lr = 0.001
     DQNLearner.set_debug(True)
-    dqn_learner = DQNLearner(environment, num_states, num_actions, max_episodes=100, lr=lr)
+    dqn_learner = DQNLearner(environment, num_states, num_actions, max_episodes=1000, lr=lr)
     dqn_learner.decay = 0.98
     dqn_learner.epsilon = 1.0
     dqn_learner.gamma = 0.99
-    dqn_learner.train()
+    dqn_learner.set_average_over(100)
+    dqn_learner.train(max_converge_count=66)
     print("Final Epsilon", round(dqn_learner.epsilon, 3))
     end_time = time.time()
     print("Total run time: ", round(end_time-start_time))
@@ -35,11 +34,11 @@ def lunar_lander(seed=42):
         dqn_learner.render_episode()
     # dqn.ShowGraphs()
     dqn_learner.save_model()
-    print("Average Score:", dqn_learner.get_average_score(10))
+    print("Average Score:", dqn_learner.get_average_score(100))
     return dqn_learner.q_model
 
 
-def load_lunar_lander(seed: int = 42):
+def load_lunar_lander(seed: int = 43):
     environment = gym.make('LunarLander-v2')
     set_seed(seed, environment)
     num_actions = environment.action_space.n
@@ -118,12 +117,12 @@ def taxi_more_training():
     return q_learner
 
 
-def set_seed(seed: int, environment_wrapper: OpenGymEnvironmentInterface) -> None:
+def set_seed(seed: int, environment) -> None:
     # np.random.seed(seed)
     # noinspection PyUnresolvedReferences
-    environment_wrapper.environment.seed(seed)
+    environment.seed(seed)
     dqn_model.random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
+    dqn_model.os.environ['PYTHONHASHSEED'] = str(seed)
     # tf.random.set_seed(seed)
     dqn_model.tf.random.set_seed(seed)
     q_learner_interfaces.np.random.seed(seed)

@@ -208,10 +208,10 @@ class IQLearnerInterface(ABC):
     def get_action(self, state: int, e_greedy: bool = True) -> int:
         # Get a random value from 0.0 to 1.0
         rand_val: float = float(np.random.rand())
-        # Grab a random action
-        action: int = np.random.randint(0, self._num_actions)
-        # If we're doing e_greedy, then get a random action if rand_val < current epsilon
-        if not (e_greedy and rand_val < self._epsilon):
+        if e_greedy and rand_val < self._epsilon:
+            # Grab a random action
+            action: int = np.random.randint(0, self._num_actions)
+        else:
             # Take best action instead of random action
             action = int(np.argmax(self.q_model.get_state(state)))
         return action
@@ -276,7 +276,7 @@ class IQLearnerInterface(ABC):
             self._episode += 1
             # Reset score for this new episode
             # Run an episode
-            score += self.run_episode()
+            score += round(self.run_episode(),2)
             # Save off score
             self._scores.append(score)
             # Get current average score. Take the last 'average_over' amount
@@ -315,7 +315,7 @@ class IQLearnerInterface(ABC):
         if not printed_episode:
             self.print_progress(converge_count, score, avg_score)
         # Set model to be the best one we found so far (based on avg_score)
-        self._q_model.use_best_model()
+        # self._q_model.use_best_model()
 
     def render_episode(self) -> float:
         return self.run_episode(render=True, no_learn=True)

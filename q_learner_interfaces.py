@@ -6,6 +6,7 @@ from signal import signal, SIGINT
 from abc import ABC, abstractmethod
 import math
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class UnusedConstructor(Exception):
@@ -28,6 +29,18 @@ signal(SIGINT, handler)
 def calc_decay(max_ep: int, min_epsilon: float, target_percent: float = 0.8) -> float:
     target_episodes: float = float(max_ep) * target_percent
     return math.pow(min_epsilon, 1.0 / target_episodes)
+
+
+def plot_results(plot, title=None, x_label=None, y_label=None):
+    plt.figure()
+    plt.plot([i for i in range(0, len(plot))], plot)
+    if title is not None:
+        plt.title(title)
+    if x_label is not None:
+        plt.xlabel(x_label)
+    if y_label is not None:
+        plt.ylabel(y_label)
+    plt.show()
 
 
 class IQModelInterface(ABC):
@@ -276,7 +289,7 @@ class IQLearnerInterface(ABC):
             self._episode += 1
             # Reset score for this new episode
             # Run an episode
-            score += round(self.run_episode(),2)
+            score += round(self.run_episode(), 2)
             # Save off score
             self._scores.append(score)
             # Get current average score. Take the last 'average_over' amount
@@ -330,6 +343,24 @@ class IQLearnerInterface(ABC):
             scores.append(score)
         return round(float(np.mean(scores)), 2)
 
+    def graph_trained_agent(self, n_iterations=10):
+        scores = []
+        for i in range(n_iterations):
+            score = self.run_episode(no_learn=True)
+            scores.append(score)
+        avg = float(sum(scores))/float(len(scores))
+        print("Average Trained Score: {:.2f}".format(round(avg, 2)))
+        plot_results(scores, title="Trained Scores for Gamma: " + str(self.gamma) + " Decay: " + str(self.decay),
+                     x_label="Episodes", y_label="Scores")
+
+    def show_graphs(self, n_iterations=100):
+        plot_results(self._scores, title="Training Scores for Gamma: " + str(self.gamma) + " Decay: " + str(self.decay),
+                     x_label="Episodes", y_label="Scores")
+        plot_results(self._running_average, title="Training Scores Running Average for Gamma: " + str(self.gamma) +
+                                                  " Decay: " + str(self.decay), x_label="Episodes", y_label="Scores")
+        # PlotResults(self.average_blocks, title="Block Averages", x_label="Average Block", y_label="Scores")
+        self.graph_trained_agent(n_iterations=n_iterations)
+
     # For this model, what do you want to print out for each progress update?
     # Parameters are converge_count (how long since we saw an improvement), score for current episode
     # and avg_score as determined by every_nth_average parameter passed to train method
@@ -361,4 +392,3 @@ class IQLearnerInterface(ABC):
     @staticmethod
     def get_abort() -> bool:
         return IQLearnerInterface.abort
-

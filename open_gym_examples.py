@@ -5,8 +5,6 @@ from q_learner import QLearner
 from dqn_learner import DQNLearner
 from environments import OpenGymEnvironmentInterface
 import time
-import random
-import os
 import dqn_model
 import q_learner_interfaces
 
@@ -33,9 +31,9 @@ def lunar_lander(seed=43):
     print("Total run time: ", round(end_time-start_time))
     for i in range(4):
         dqn_learner.render_episode()
-    # dqn.ShowGraphs()
     dqn_learner.save_model()
-    print("Average Score:", dqn_learner.get_average_score(100))
+    # print("Average Score:", dqn_learner.get_average_score(100))
+    dqn_learner.show_graphs()
     return dqn_learner.q_model
 
 

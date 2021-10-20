@@ -2,3 +2,4 @@ numpy~=1.19.5
 gym~=0.20.0
 cython~=0.29.24
 tensorflow~=2.6.0
+matplotlib~=3.4.3

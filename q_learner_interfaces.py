@@ -348,7 +348,7 @@ class IQLearnerInterface(ABC):
             score = self.run_episode(no_learn=True)
             scores.append(score)
         avg = float(sum(scores))/float(len(scores))
-        print("Average Trained Score: {:.2f}".format(round(avg, 2)))
+        print("Graphed Average Trained Score: {:.2f}".format(round(avg, 2)))
         plot_results(scores, title="Trained Scores for Gamma: " + str(self.gamma) + " Decay: " + str(self.decay),
                      x_label="Episodes", y_label="Scores")
 

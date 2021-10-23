@@ -8,6 +8,10 @@ import dqn_model
 import q_learner_interfaces
 from gym.envs.toy_text.taxi import TaxiEnv
 
+# Environment documentation
+# https://gym.openai.com/docs/
+# https://gym.openai.com/envs/#classic_control
+
 
 def set_seed(seed: int, environment) -> None:
     # noinspection PyUnresolvedReferences
@@ -37,4 +41,15 @@ class TaxiLearner(QLearner):
         environment: OpenGymEnvironmentInterface = OpenGymEnvironmentInterface(env)
         super(TaxiLearner, self).__init__(environment, environment.num_states, environment.num_actions, max_episodes)
         # Create model
-        self._q_model = QModel(environment.num_states, environment.num_actions)
+        self._q_model = DQNModel(environment.num_states, environment.num_actions, lr=lr)
+
+
+class CartPoleLearner(DQNLearner):
+    def __init__(self, max_episodes: int = None, lr: float = 0.001, seed: int = None) -> None:
+        env = gym.make('CartPole-v1')
+        if seed is not None:
+            set_seed(seed, env)
+        environment: OpenGymEnvironmentInterface = OpenGymEnvironmentInterface(env)
+        super(CartPoleLearner, self).__init__(environment, environment.num_states, environment.num_actions, max_episodes)
+        # Create model
+        self._q_model = DQNModel(environment.num_states, environment.num_actions, lr=lr)

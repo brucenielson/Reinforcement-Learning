@@ -11,6 +11,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 class DQNModel(IQModelInterface):
     def __init__(self, num_states: int, num_actions: int, lr: float = 0.001):
         super(DQNModel, self).__init__()
+        self._num_states = num_states
         act_relu = activations.relu
         act_linear = activations.linear
         top_layer = 150
@@ -41,7 +42,7 @@ class DQNModel(IQModelInterface):
         self._batch_size = size
 
     def get_state(self, state: np.ndarray):
-        state = np.reshape(state, (1, 8))
+        state = np.reshape(state, (1, self._num_states))
         return self._model.predict(state)
 
     def update_q_model(self, state: int, action: int, reward: float, new_state: object, done: bool = False,

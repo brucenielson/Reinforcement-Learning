@@ -360,6 +360,10 @@ class IQLearnerInterface(ABC):
         # PlotResults(self.average_blocks, title="Block Averages", x_label="Average Block", y_label="Scores")
         self.graph_trained_agent(n_iterations=n_iterations)
 
+    def render_episodes(self, episodes: int):
+        for i in range(episodes):
+            self.render_episode()
+
     # For this model, what do you want to print out for each progress update?
     # Parameters are converge_count (how long since we saw an improvement), score for current episode
     # and avg_score as determined by every_nth_average parameter passed to train method

@@ -19,8 +19,7 @@ def lunar_lander(seed=43):
     print("Final Epsilon", round(learner.epsilon, 3))
     end_time = time.time()
     print("Total run time: ", round(end_time-start_time))
-    for i in range(4):
-        learner.render_episode()
+    learner.render_episodes(4)
     learner.save_model()
     # print("Average Score:", dqn_learner.get_average_score(100))
     learner.show_graphs()
@@ -30,8 +29,7 @@ def lunar_lander(seed=43):
 def load_lunar_lander(seed: int = 43):
     learner = LunarLanderLearner(seed=seed)
     learner.load_model("BestQModel")
-    for i in range(5):
-        learner.render_episode()
+    learner.render_episodes(5)
     # print("Average Score:", dqn_learner.get_average_score(10))
     return learner
 
@@ -48,10 +46,9 @@ def taxi(seed: int = 42):
     print("Final Alpha:", round(learner.alpha, 4))
     end_time = time.time()
     print("Total run time: ", round(end_time-start_time))
-    # for i in range(1):
-    #     q_learner.render_episode()
-    # q_learner.ShowGraphs()
+    # learner.render_episodes(3)
     learner.save_model()
+    learner.show_graphs()
     print("Q Sparseness: ", learner.q_model.q_sparseness())
     print("Average Score:", learner.get_average_score(10000))
     return learner
@@ -61,8 +58,7 @@ def load_taxi(seed: int = 42):
     learner: TaxiLearner = TaxiLearner(5000, seed=seed)
     learner.load_model("TaxiQModel")
     # How to render better in a notebook: https://casey-barr.github.io/open-ai-taxi-problem/
-    # for i in range(4):
-    #     q_learner.render_episode()
+    # learner.render_episodes(3)
     print("Q Sparseness: ", learner.q_model.q_sparseness())
     print("Average Score:", learner.get_average_score(10000))
     return learner
@@ -70,30 +66,23 @@ def load_taxi(seed: int = 42):
 
 def taxi_more_training():
     start_time = time.time()
-    env: TaxiEnv = TaxiEnv()
-    environment: OpenGymEnvironmentInterface = OpenGymEnvironmentInterface(env)
-    num_actions: int = env.action_space.n
-    num_states: int = env.observation_space.n
-
-    q_learner: QLearner = QLearner(environment, num_states, num_actions, 1000)
-    q_learner.load_model("TaxiQModel")
-    print("Q Sparseness: ", q_learner.q_model.q_sparseness())
-    q_learner.train()
-    print("Final Epsilon", round(q_learner.epsilon, 4))
-    print("Final Alpha:", round(q_learner.alpha, 4))
+    learner: QLearner = TaxiLearner(1000)
+    learner.load_model("TaxiQModel")
+    print("Q Sparseness: ", learner.q_model.q_sparseness())
+    learner.train()
+    print("Final Epsilon", round(learner.epsilon, 4))
+    print("Final Alpha:", round(learner.alpha, 4))
     end_time = time.time()
     print("Total run time: ", round(end_time-start_time))
-    # for i in range(1):
-    #     q_learner.render_episode()
-    # q_learner.ShowGraphs()
-    q_learner.save_model()
-    print("Average Score:", q_learner.get_average_score(100))
-    return q_learner
+    learner.show_graphs()
+    learner.save_model()
+    print("Average Score:", learner.get_average_score(10000))
+    return learner
 
 
 # ql = lunar_lander()
-# ql = load_lunar_lander()
-ql1 = taxi()
+ql = load_lunar_lander()
+# ql1 = taxi()
 # ql2 = load_taxi()
 # ql = taxi_more_training()
 

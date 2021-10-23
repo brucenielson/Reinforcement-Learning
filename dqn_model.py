@@ -1,6 +1,7 @@
 from q_learner_interfaces import IQModelInterface
 from tensorflow.keras import activations, Sequential, layers, optimizers
 from tensorflow.keras.models import load_model
+import tensorflow as tf
 import numpy as np
 import random
 import os

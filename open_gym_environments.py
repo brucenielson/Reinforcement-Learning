@@ -33,7 +33,7 @@ class TaxiLearner(QLearner):
     def __init__(self, max_episodes: int = None, seed: int = None) -> None:
         env: TaxiEnv = TaxiEnv()
         if seed is not None:
-            set_seed(seed)
+            set_seed(seed, env)
         environment: OpenGymEnvironmentInterface = OpenGymEnvironmentInterface(env)
         super(TaxiLearner, self).__init__(environment, environment.num_states, environment.num_actions, max_episodes)
         # Create model

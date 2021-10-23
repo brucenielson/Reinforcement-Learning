@@ -1,7 +1,6 @@
 from q_learner_interfaces import IQModelInterface
 from tensorflow.keras import activations, Sequential, layers, optimizers
 from tensorflow.keras.models import load_model
-import tensorflow as tf
 import numpy as np
 import random
 import os
@@ -10,7 +9,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 class DQNModel(IQModelInterface):
     def __init__(self, num_states: int, num_actions: int, lr: float = 0.001):
-        super(DQNModel, self).__init__(num_states, num_actions)
+        super(DQNModel, self).__init__()
         act_relu = activations.relu
         act_linear = activations.linear
         top_layer = 150
@@ -97,4 +96,3 @@ class DQNModel(IQModelInterface):
 
     def use_best_model(self):
         self._model.set_weights(self._best_model)
-

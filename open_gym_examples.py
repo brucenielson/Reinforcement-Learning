@@ -1,57 +1,44 @@
 from gym.envs.toy_text.taxi import TaxiEnv
-import gym
 import numpy as np
 from q_learner import QLearner
-from dqn_learner import DQNLearner
 from environments import OpenGymEnvironmentInterface
 import time
-import dqn_model
-import q_learner_interfaces
+
+from open_gym_environments import LunarLanderLearner
 
 
 def lunar_lander(seed=43):
     start_time = time.time()
-
-    environment = gym.make('LunarLander-v2')
-    set_seed(seed, environment)
-    num_actions = environment.action_space.n
-    # How to get number of states for reinforcement learning
-    num_states = environment.observation_space.shape[0]
-    lr = 0.001
-    DQNLearner.set_debug(True)
-    dqn_learner = DQNLearner(environment, num_states, num_actions, max_episodes=500, lr=lr)
-    # dqn_learner.decay = 0.98
-    dqn_learner.epsilon = 1.0
-    dqn_learner.gamma = 0.99
-    dqn_learner.set_average_over(100)
-    # dqn_learner.recalculate_decay(0.5)
-    dqn_learner.train()
-    print("Final Epsilon", round(dqn_learner.epsilon, 3))
+    LunarLanderLearner.set_debug(True)
+    learner = LunarLanderLearner(max_episodes=500, lr=0.001, seed=seed)
+    # learner.decay = 0.98
+    learner.epsilon = 1.0
+    learner.gamma = 0.99
+    learner.set_average_over(100)
+    # learner.recalculate_decay(0.5)
+    learner.train()
+    print("Final Epsilon", round(learner.epsilon, 3))
     end_time = time.time()
     print("Total run time: ", round(end_time-start_time))
     for i in range(4):
-        dqn_learner.render_episode()
-    dqn_learner.save_model()
+        learner.render_episode()
+    learner.save_model()
     # print("Average Score:", dqn_learner.get_average_score(100))
-    dqn_learner.show_graphs()
-    return dqn_learner.q_model
+    learner.show_graphs()
+    return learner
 
 
 def load_lunar_lander(seed: int = 43):
-    environment = gym.make('LunarLander-v2')
-    set_seed(seed, environment)
-    num_actions = environment.action_space.n
-    # How to get number of states for reinforcement learning
-    num_states = environment.observation_space.shape[0]
-    dqn_learner = DQNLearner(environment, num_states, num_actions)
-    dqn_learner.load_model("BestQModel")
-    for i in range(3):
-        dqn_learner.render_episode()
-    print("Average Score:", dqn_learner.get_average_score(10))
-    return dqn_learner
+    learner = LunarLanderLearner(seed=seed)
+    learner.load_model("BestQModel")
+    for i in range(5):
+        learner.render_episode()
+    # print("Average Score:", dqn_learner.get_average_score(10))
+    return learner
 
 
 def taxi(seed: int = 42):
+    # Taxi scores: https://medium.com/@anirbans17/reinforcement-learning-for-taxi-v2-edd7c5b76869
     start_time = time.time()
     env: TaxiEnv = TaxiEnv()
     environment: OpenGymEnvironmentInterface = OpenGymEnvironmentInterface(env)
@@ -116,20 +103,11 @@ def taxi_more_training():
     return q_learner
 
 
-def set_seed(seed: int, environment) -> None:
-    # np.random.seed(seed)
-    # noinspection PyUnresolvedReferences
-    environment.seed(seed)
-    dqn_model.random.seed(seed)
-    dqn_model.os.environ['PYTHONHASHSEED'] = str(seed)
-    # tf.random.set_seed(seed)
-    dqn_model.tf.random.set_seed(seed)
-    q_learner_interfaces.np.random.seed(seed)
-
-
 ql = lunar_lander()
 # ql = load_lunar_lander()
 # ql1 = taxi()
 # ql2 = load_taxi()
 # ql = taxi_more_training()
-# Taxi scores: https://medium.com/@anirbans17/reinforcement-learning-for-taxi-v2-edd7c5b76869
+
+
+# https://gym.openai.com/envs/#classic_control

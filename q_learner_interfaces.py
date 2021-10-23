@@ -44,9 +44,7 @@ def plot_results(plot, title=None, x_label=None, y_label=None):
 
 
 class IQModelInterface(ABC):
-    def __init__(self, num_states: int, num_actions: int) -> None:
-        self._num_states: int = num_states
-        self._num_actions: int = num_actions
+    def __init__(self) -> None:
         self._history: list = []
         self._ignore_history: bool = False
         self._model: object = None
@@ -122,7 +120,8 @@ class IQLearnerInterface(ABC):
     abort: bool = False     # Abort flag to stop training
     debug: bool = False     # Debug flag to give debug info
 
-    def __init__(self, environment: IEnvironmentInterface, num_states: int, num_actions: int, max_episodes: int = None):
+    def __init__(self, environment: IEnvironmentInterface, num_states: int, num_actions: int,
+                 max_episodes: int = None):
         self._num_states: int = num_states                       # Number of world states
         self._num_actions: int = num_actions                     # Number of actions available per world state
         # Report states and actions in env

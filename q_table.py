@@ -10,11 +10,14 @@ from copy import deepcopy
 
 class QModel(IQModelInterface):
     def __init__(self, num_states: int, num_actions: int) -> None:
-        super(QModel, self).__init__(num_states, num_actions)
+        super(QModel, self).__init__()
         # Create a numpy table to be our Q Table
-        self._model: np.ndarray = np.zeros((self._num_states, self._num_actions), dtype=np.single)
+        self._model: np.ndarray = np.zeros((num_states, num_actions), dtype=np.single)
         # No need to store history for a Q Table
         self.ignore_history: bool = True
+        # Save number of states and actions so that we can calculate sparseness if desired
+        self._num_states = num_states
+        self._num_actions = num_actions
 
     # Given a state and action, return the current Q value for that state / action combo
     def get_value(self, state: int, action: int) -> float:

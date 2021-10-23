@@ -10,7 +10,7 @@ class QLearner(IQLearnerInterface):
         # Create model
         self._q_model: QModel = QModel(num_states, num_actions)
         self._min_alpha: float = 0.05
-        self._alpha: float = 0.1                                 # Learning Rate (alpha)
+        self._alpha: float = 0.1  # Learning Rate (alpha)
 
     def update_model(self, state: int, action: int, reward: float, new_state: int, done: bool = False) -> None:
         self._q_model.save_history(state, action, reward, new_state, done)

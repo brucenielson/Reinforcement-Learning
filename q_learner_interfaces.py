@@ -27,6 +27,8 @@ signal(SIGINT, handler)
 
 # Function used to set decay if given max_episodes so that we get to min epsilon just before max_episodes
 def calc_decay(max_ep: int, min_epsilon: float, target_percent: float = 0.8) -> float:
+    if min_epsilon <= 0.0:
+        min_epsilon = 0.000001
     target_episodes: float = float(max_ep) * target_percent
     return math.pow(min_epsilon, 1.0 / target_episodes)
 
@@ -150,7 +152,7 @@ class IQLearnerInterface(ABC):
         # Track scores, averages, and states across a session of training
         self._scores: list = []
         self._running_average: list = []
-        self._average_blocks: list = []
+        # self._average_blocks: list = []
         # For tracking training values progress and determining best model
         # Default to 100 or to 1/10th of max episodes, whichever is smaller. But don't go below 1.
         self._average_over: int = 100
@@ -288,7 +290,7 @@ class IQLearnerInterface(ABC):
             self._episode += 1
             # Reset score for this new episode
             # Run an episode
-            score += round(self.run_episode(), 2)
+            score = round(self.run_episode(), 2)
             # Save off score
             self._scores.append(score)
             # Get current average score. Take the last 'average_over' amount
@@ -308,14 +310,14 @@ class IQLearnerInterface(ABC):
                 self.print_progress(converge_count, score, avg_score)
                 printed_episode = True
             # Decay after each episode
-            self._epsilon = max(self._epsilon * self._decay, self._min_epsilon)
+            self._epsilon = round(max(self._epsilon * self._decay, self._min_epsilon), 5)
             # TODO: I'm not sure this is the right way to handle alpha decay - maybe I should call am abstract function
             if decay_alpha and hasattr(self, '_alpha') and hasattr(self, '_min_alpha'):
                 # noinspection PyAttributeOutsideInit
-                self._alpha = max(self._alpha * self._decay, self._min_alpha)
+                self._alpha = round(max(self._alpha * self._decay, self._min_alpha), 5)
             # Track every Nth average score to make the final graph look more readable
-            if self._episode % every_nth_average == 0:
-                self._average_blocks.append(avg_score)
+            # if self._episode % every_nth_average == 0:
+            #     self._average_blocks.append(avg_score)
             # If we abort, just break the train loop and move on
             if IQLearnerInterface.get_abort():
                 # Reset abort
@@ -327,7 +329,7 @@ class IQLearnerInterface(ABC):
         if not printed_episode:
             self.print_progress(converge_count, score, avg_score)
         # Set model to be the best one we found so far (based on avg_score)
-        self._q_model.use_best_model()
+        # self._q_model.use_best_model()
 
     def render_episode(self) -> float:
         return self.run_episode(render=True, no_learn=True)

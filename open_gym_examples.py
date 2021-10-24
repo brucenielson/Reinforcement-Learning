@@ -74,23 +74,26 @@ def taxi_more_training():
 
 
 def cart_pole(seed: int = 42):
-    TaxiLearner.set_debug(True)
-    learner: CartPoleLearner = CartPoleLearner(300, seed=seed, lr=0.001)
-    return train_loop(learner)
+    CartPoleLearner.set_debug(True)
+    learner: CartPoleLearner = CartPoleLearner(100, seed=seed, lr=0.001)
+    learner.set_min_epsilon(0.0, recalculate_decay=False)
+    return train_loop(learner, get_average=False)
 
 
 def load_cart_pole(seed: int = 43):
     learner = CartPoleLearner(seed=seed)
     learner.load_model("BestCPModel")
+    # learner.epsilon = 0.001
     learner.render_episodes(5)
     print("Average Score:", learner.get_average_score(10))
+    learner.graph_trained_agent(n_iterations=100)
     return learner
 
 
 # ql = lunar_lander_training()
 # ql = load_lunar_lander()
-# ql1 = taxi()
-# ql2 = load_taxi()
+# ql = taxi()
+# ql = load_taxi()
 # ql = taxi_more_training()
 ql = cart_pole()
 # ql = load_cart_pole()

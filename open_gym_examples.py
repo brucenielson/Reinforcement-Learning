@@ -73,7 +73,7 @@ def taxi_more_training():
     return train_loop(learner, render=False, average_over=10000)
 
 
-def cart_pole(seed: int = 42):
+def cart_pole_training(seed: int = 42):
     CartPoleLearner.set_debug(True)
     learner: CartPoleLearner = CartPoleLearner(100, seed=seed, lr=0.001)
     learner.set_min_epsilon(0.0, recalculate_decay=False)
@@ -93,10 +93,10 @@ def load_cart_pole(seed: int = 43):
     return learner
 
 
-ql = lunar_lander_training()
+# ql = lunar_lander_training()
 # ql = load_lunar_lander()
 # ql = taxi()
 # ql = load_taxi()
 # ql = taxi_more_training()
-# ql = cart_pole()
+ql = cart_pole_training()
 # ql = load_cart_pole()

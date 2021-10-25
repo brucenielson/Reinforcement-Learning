@@ -26,7 +26,7 @@ def train_loop(learner, verbose=True, save_model=True, show_graphs=True, render=
     return learner
 
 
-def lunar_lander(seed=43):
+def lunar_lander_training(seed=43):
     LunarLanderLearner.set_debug(True)
     learner = LunarLanderLearner(max_episodes=500, lr=0.001, seed=seed)
     # learner.decay = 0.98
@@ -34,10 +34,10 @@ def lunar_lander(seed=43):
     learner.gamma = 0.99
     learner.set_average_over(100)
     # learner.recalculate_decay(0.5)
-    return train_loop(learner)
+    return train_loop(learner, get_average=False)
 
 
-def load_lunar_lander_training(seed: int = 43):
+def load_lunar_lander(seed: int = 43):
     learner = LunarLanderLearner(seed=seed)
     learner.load_model("BestLLModel")
     learner.render_episodes(5)
@@ -77,6 +77,9 @@ def cart_pole(seed: int = 42):
     CartPoleLearner.set_debug(True)
     learner: CartPoleLearner = CartPoleLearner(100, seed=seed, lr=0.001)
     learner.set_min_epsilon(0.0, recalculate_decay=False)
+    # Cart pole trains easily when there are occasional random movements but it's harder to get it to train well
+    # once not using e-greedy actions. Turning off the use_best_model function gets around this in this case.
+    learner.use_best_model = False
     return train_loop(learner, get_average=False)
 
 
@@ -90,10 +93,10 @@ def load_cart_pole(seed: int = 43):
     return learner
 
 
-# ql = lunar_lander_training()
+ql = lunar_lander_training()
 # ql = load_lunar_lander()
 # ql = taxi()
 # ql = load_taxi()
 # ql = taxi_more_training()
-ql = cart_pole()
+# ql = cart_pole()
 # ql = load_cart_pole()

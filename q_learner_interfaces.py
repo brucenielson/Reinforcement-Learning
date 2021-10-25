@@ -158,6 +158,7 @@ class IQLearnerInterface(ABC):
         self._average_over: int = 100
         if max_episodes is not None:
             self._average_over: int = max(min(100, max_episodes//10), 1)
+        self._use_best_model = True
 
     # Set this to 1 to show feedback on every training episode. Set higher than 1 to show fewer. e.g. 100 = only report
     # every 100th episode, etc.
@@ -217,6 +218,17 @@ class IQLearnerInterface(ABC):
     @property
     def q_model(self) -> IQModelInterface:
         return self._q_model
+
+    # Getter for epsilon (chance of random move)
+    @property
+    def use_best_model(self) -> bool:
+        return self._use_best_model
+
+    # Set the starting rate of making a random move (i.e. epsilon)
+    @use_best_model.setter
+    def use_best_model(self, use_best_model: bool) -> None:
+        # Set epsilon (chance of random move)
+        self._use_best_model = use_best_model
 
     # Get next action based on current model / random move if e_greedy
     def get_action(self, state: int, e_greedy: bool = True) -> int:
@@ -310,11 +322,11 @@ class IQLearnerInterface(ABC):
                 self.print_progress(converge_count, score, avg_score)
                 printed_episode = True
             # Decay after each episode
-            self._epsilon = round(max(self._epsilon * self._decay, self._min_epsilon), 5)
+            self._epsilon = round(max(self._epsilon * self._decay, self._min_epsilon), 6)
             # TODO: I'm not sure this is the right way to handle alpha decay - maybe I should call am abstract function
             if decay_alpha and hasattr(self, '_alpha') and hasattr(self, '_min_alpha'):
                 # noinspection PyAttributeOutsideInit
-                self._alpha = round(max(self._alpha * self._decay, self._min_alpha), 5)
+                self._alpha = round(max(self._alpha * self._decay, self._min_alpha), 6)
             # Track every Nth average score to make the final graph look more readable
             # if self._episode % every_nth_average == 0:
             #     self._average_blocks.append(avg_score)
@@ -329,7 +341,8 @@ class IQLearnerInterface(ABC):
         if not printed_episode:
             self.print_progress(converge_count, score, avg_score)
         # Set model to be the best one we found so far (based on avg_score)
-        # self._q_model.use_best_model()
+        if self._use_best_model:
+            self._q_model.use_best_model()
 
     def render_episode(self) -> float:
         return self.run_episode(render=True, no_learn=True)

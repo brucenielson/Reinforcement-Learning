@@ -1,3 +1,4 @@
+States:  4 Actions:  2
 Setting decay to:  0.9261187281287935
 Episode: 1 Last High: 0 Epsilon: 0.99 Score: 29.0 Avg Score: 29.0
 Episode: 2 Last High: 1 Epsilon: 0.9169 Score: 8.0 Avg Score: 18.5
@@ -100,9 +101,9 @@ Episode: 98 Last High: 59 Epsilon: 0.0006 Score: 248.0 Avg Score: 256.5
 Episode: 99 Last High: 60 Epsilon: 0.0005 Score: 491.0 Avg Score: 292.9
 Episode: 100 Last High: 61 Epsilon: 0.0005 Score: 376.0 Avg Score: 313.7
 Final Epsilon 0.0
-Total run time:  2025
-Score: 105.0
-Score: 111.0
-Score: 126.0
-Score: 124.0
-Graphed Average Trained Score: 120.41
+Total run time:  2009
+Score: 500.0
+Score: 329.0
+Score: 500.0
+Score: 328.0
+Graphed Average Trained Score: 350.15

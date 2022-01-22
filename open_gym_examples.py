@@ -40,6 +40,7 @@ def lunar_lander_training(seed=43):
 def load_lunar_lander(seed: int = 43):
     learner = LunarLanderLearner(seed=seed)
     learner.load_model("BestLLModel")
+    #learner.load_model("PreviousBestQModel")
     learner.render_episodes(5)
     print("Average Score:", learner.get_average_score(10))
     return learner
@@ -94,9 +95,9 @@ def load_cart_pole(seed: int = 43):
 
 
 # ql = lunar_lander_training()
-# ql = load_lunar_lander()
+ql = load_lunar_lander()
 # ql = taxi()
 # ql = load_taxi()
 # ql = taxi_more_training()
-ql = cart_pole_training()
+# ql = cart_pole_training()
 # ql = load_cart_pole()
